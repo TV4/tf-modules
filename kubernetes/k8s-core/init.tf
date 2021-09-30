@@ -1,7 +1,6 @@
 variable "branch" {}
 variable "cluster_id" {}
 variable "cluster_repo" {}
-variable "environment" {}
 variable "github_owner" {}
 variable "istio_version" {}
 variable "istio_control_plane_yaml" {}
