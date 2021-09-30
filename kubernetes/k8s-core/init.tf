@@ -6,10 +6,6 @@ variable "istio_version" {}
 variable "istio_control_plane_yaml" {}
 variable "istio_gateways_yaml" {}
 
-provider "github" {
-  owner = var.github_owner
-}
-
 terraform {
   required_providers {
     tls = {
