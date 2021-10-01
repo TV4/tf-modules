@@ -10,6 +10,7 @@ resource "kubernetes_namespace" "istio_operator" {
       metadata[0].labels,
     ]
   }
+  depends_on = [var.cluster_resource]
 }
 
 resource "kubernetes_namespace" "istio_system" {
@@ -24,6 +25,7 @@ resource "kubernetes_namespace" "istio_system" {
       metadata[0].labels,
     ]
   }
+  depends_on = [var.cluster_resource]
 }
 
 # For when Istio helm chart is packed properly:

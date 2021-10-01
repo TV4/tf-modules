@@ -14,6 +14,7 @@ resource "kubernetes_namespace" "flux_system" {
       metadata[0].labels,
     ]
   }
+  depends_on = [var.cluster_resource]
 }
 
 data "github_repository" "cluster" {

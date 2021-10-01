@@ -1,11 +1,3 @@
-variable "branch" {}
-variable "cluster_id" {}
-variable "cluster_repo" {}
-variable "github_owner" {}
-variable "istio_version" {}
-variable "istio_control_plane_yaml" {}
-variable "istio_gateways_yaml" {}
-
 terraform {
   required_providers {
     tls = {
