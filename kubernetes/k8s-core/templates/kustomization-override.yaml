@@ -14,6 +14,5 @@ patchesStrategicMerge:
     template:
       spec:
         securityContext:
-          fsGroup: 1337
           runAsUser: 100
           runAsGroup: 101
