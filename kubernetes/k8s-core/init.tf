@@ -2,6 +2,10 @@ provider "kubernetes" {
   config_path = "~/.kube/config"
 }
 
+provider "github" {
+  owner = var.github_owner
+}
+
 terraform {
   required_providers {
     tls = {

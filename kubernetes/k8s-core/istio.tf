@@ -8,6 +8,7 @@ resource "kubernetes_namespace" "istio_operator" {
   lifecycle {
     ignore_changes = [
       metadata[0].labels,
+      metadata[0].annotations,
     ]
   }
   depends_on = [var.cluster_resource]
@@ -23,6 +24,7 @@ resource "kubernetes_namespace" "istio_system" {
   lifecycle {
     ignore_changes = [
       metadata[0].labels,
+      metadata[0].annotations,
     ]
   }
   depends_on = [var.cluster_resource]

@@ -12,6 +12,7 @@ resource "kubernetes_namespace" "flux_system" {
   lifecycle {
     ignore_changes = [
       metadata[0].labels,
+      metadata[0].annotations,
     ]
   }
   depends_on = [var.cluster_resource]
@@ -65,7 +66,7 @@ resource "github_repository_file" "kustomize" {
   repository          = data.github_repository.cluster.name
   branch              = var.branch
   file                = data.flux_sync.this.kustomize_path
-  content             = data.flux_sync.this.kustomize_content
+  content             = file("${path.module}/templates/kustomization-override.yaml")
   overwrite_on_create = true
 }
 
