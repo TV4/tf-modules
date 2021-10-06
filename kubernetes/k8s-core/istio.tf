@@ -48,6 +48,10 @@ resource "helm_release" "istio_operator" {
     name  = "watchedNamespaces"
     value = "istio-system"
   }
+  set {
+    name  = "hub"
+    value = var.registry_istio
+  }
 }
 
 # Reason for keeping control plane and gateways separate: https://istio.io/latest/docs/setup/upgrade/gateways/ 

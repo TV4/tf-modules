@@ -28,6 +28,7 @@ resource "tls_private_key" "cluster" {
 
 data "flux_install" "this" {
   target_path = "clusters/${var.cluster_id}"
+  registry    = var.registry_flux
 }
 
 data "flux_sync" "this" {

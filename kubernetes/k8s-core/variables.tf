@@ -26,6 +26,18 @@ variable "cluster_resource" {
   }
 }
 
+variable "registry_istio" {
+  description = "Artifact registry to pull images from for istio"
+  type        = string
+  default     = "gcr.io/istio-release"
+}
+
+variable "registry_flux" {
+  description = "Artifact registry to pull images from for flux"
+  type        = string
+  default     = "ghcr.io/fluxcd"
+}
+
 variable "github_owner" {
   description = "Owner of flux repo, used in coalition with cluster_repo to figure out github path"
   type        = string
