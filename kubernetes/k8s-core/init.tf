@@ -6,6 +6,12 @@ provider "github" {
   owner = var.github_owner
 }
 
+provider "helm" {
+  kubernetes {
+    config_path = "~/.kube/config"
+  }
+}
+
 terraform {
   required_providers {
     tls = {

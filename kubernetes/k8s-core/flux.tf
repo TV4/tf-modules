@@ -78,6 +78,9 @@ resource "kubectl_manifest" "install" {
   for_each   = { for v in data.kubectl_file_documents.install.documents : sha1(v) => v }
   depends_on = [kubernetes_namespace.flux_system]
 
+  # It will sort itself out eventually (deployment will fail on OCP due to patch cant be applied at first start)
+  wait_for_rollout = false
+
   yaml_body = each.value
 }
 

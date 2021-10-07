@@ -2,7 +2,13 @@ resource "kubernetes_namespace" "istio_operator" {
   metadata {
     name = "istio-operator"
     labels = {
-      name = "istio-operator"
+      istio-operator-managed         = "Reconcile"
+      istio-injection                = "disabled"
+      "app.kubernetes.io/managed-by" = "Helm"
+    }
+    annotations = {
+      "meta.helm.sh/release-name"      = "istio-operator"
+      "meta.helm.sh/release-namespace" = "istio-operator"
     }
   }
   lifecycle {
