@@ -26,6 +26,12 @@ variable "cluster_resource" {
   }
 }
 
+variable "extra_repos" {
+  description = "List of private github repos which should add the same deploy key."
+  type        = list(string)
+  default     = []
+}
+
 variable "registry_istio" {
   description = "Artifact registry to pull images from for istio"
   type        = string

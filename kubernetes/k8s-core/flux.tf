@@ -46,6 +46,25 @@ resource "github_repository_deploy_key" "cluster" {
   read_only  = true
 }
 
+resource "tls_private_key" "extras" {
+  for_each  = toset(var.extra_repos)
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+data "github_repository" "extras" {
+  for_each  = toset(var.extra_repos)
+  full_name = "${var.github_owner}/${each.key}"
+}
+
+resource "github_repository_deploy_key" "extras" {
+  for_each   = toset(var.extra_repos)
+  title      = "flux-${var.cluster_id}"
+  repository = data.github_repository.extras[each.key].name
+  key        = tls_private_key.extras[each.key].public_key_openssh
+  read_only  = true
+}
+
 resource "github_repository_file" "install" {
   repository          = data.github_repository.cluster.name
   branch              = var.branch
@@ -106,6 +125,22 @@ resource "kubernetes_secret" "cluster" {
   data = {
     identity       = tls_private_key.cluster.private_key_pem
     "identity.pub" = tls_private_key.cluster.public_key_pem
+    known_hosts    = local.known_hosts
+  }
+}
+
+resource "kubernetes_secret" "extras" {
+  for_each   = toset(var.extra_repos)
+  depends_on = [kubectl_manifest.install]
+
+  metadata {
+    name      = each.key
+    namespace = data.flux_sync.this.namespace
+  }
+
+  data = {
+    identity       = tls_private_key.extras[each.key].private_key_pem
+    "identity.pub" = tls_private_key.extras[each.key].public_key_pem
     known_hosts    = local.known_hosts
   }
 }
