@@ -94,7 +94,7 @@ data "kubectl_file_documents" "install" {
 }
 
 resource "kubectl_manifest" "install" {
-  for_each   = { for v in data.kubectl_file_documents.install.documents : sha1(v) => v }
+  for_each   = data.kubectl_file_documents.install.manifests
   depends_on = [kubernetes_namespace.flux_system]
 
   # It will sort itself out eventually (deployment will fail on OCP due to patch cant be applied at first start)
@@ -108,7 +108,7 @@ data "kubectl_file_documents" "sync" {
 }
 
 resource "kubectl_manifest" "sync" {
-  for_each   = { for v in data.kubectl_file_documents.sync.documents : sha1(v) => v }
+  for_each   = data.kubectl_file_documents.sync.manifests
   depends_on = [kubectl_manifest.install, kubernetes_namespace.flux_system]
 
   yaml_body = each.value
