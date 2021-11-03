@@ -28,13 +28,13 @@ resource "tls_private_key" "cluster" {
 }
 
 data "flux_install" "this" {
-  target_path = "clusters/${var.cluster_id}"
+  target_path = "${var.flux_repo_path}/${var.cluster_id}"
   registry    = var.registry_flux
 }
 
 data "flux_sync" "this" {
   url         = "ssh://git@github.com/${var.github_owner}/${var.cluster_repo}.git"
-  target_path = "clusters/${var.cluster_id}"
+  target_path = "${var.flux_repo_path}/${var.cluster_id}"
   branch      = var.branch
   interval    = 1
 }
@@ -131,7 +131,7 @@ resource "kubernetes_secret" "cluster" {
 
 resource "kubernetes_secret" "extras" {
   for_each   = toset(var.extra_repos)
-  depends_on = [kubectl_manifest.install]
+  depends_on = [kubernetes_namespace.flux_system]
 
   metadata {
     name      = each.key

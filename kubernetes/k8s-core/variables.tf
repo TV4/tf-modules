@@ -26,6 +26,12 @@ variable "cluster_resource" {
   }
 }
 
+variable "flux_repo_path" {
+  description = "Default path to store clusters"
+  type        = string
+  default     = "clusters"
+}
+
 variable "extra_repos" {
   description = "List of private github repos which should add the same deploy key."
   type        = list(string)
@@ -63,3 +69,4 @@ variable "istio_gateways_yaml" {
   description = "yaml content of istio gateway configuration"
   type        = string
 }
+
