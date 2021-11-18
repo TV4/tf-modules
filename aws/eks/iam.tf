@@ -106,3 +106,17 @@ module "external_dns" {
   policy_json                = data.aws_iam_policy_document.external_dns.json
 }
 
+module "loadbalancer" {
+  source = "../irsa"
+  name   = "${var.name}-aws-load-balancer-controller"
+  oidc_providers = [
+    {
+      url = module.eks.cluster_oidc_issuer_url
+      arn = module.eks.oidc_provider_arn
+    }
+  ]
+  kubernetes_namespace       = "kube-system"
+  kubernetes_service_account = "aws-load-balancer-controller"
+  policy_json                = file("${path.module}/policies/loadbalancer_policy.json")
+}
+

@@ -28,3 +28,10 @@ output "external_dns_config" {
     role_arn = module.external_dns.role_arn
   }
 }
+
+output "loadbalancer_config" {
+  description = "Configuration for Loadbalancer"
+  value = {
+    role_arn = module.loadbalancer.role_arn
+  }
+}
