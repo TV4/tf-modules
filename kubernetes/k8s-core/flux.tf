@@ -51,9 +51,9 @@ resource "github_repository_deploy_key" "cluster" {
 }
 
 resource "tls_private_key" "extras" {
-  for_each  = toset(var.extra_repos)
-  algorithm = "RSA"
-  rsa_bits  = 4096
+  for_each    = toset(var.extra_repos)
+  algorithm   = "ECDSA"
+  ecdsa_curve = "P384"
 }
 
 data "github_repository" "extras" {
