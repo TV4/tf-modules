@@ -41,7 +41,7 @@ resource "helm_release" "aws_lb" {
   }
   set {
     name  = "image.repository"
-    value = "${var.container_images[var.region]}/aws-load-balancer-controller"
+    value = "${var.container_images[var.region]}/amazon/aws-load-balancer-controller"
   }
   set {
     name  = "serviceAccount.create"
