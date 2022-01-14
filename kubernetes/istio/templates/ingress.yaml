@@ -1,0 +1,13 @@
+
+${yamlencode({
+autoscaling = v_autoscaling
+tolerations = v_tolerations
+affinity = v_affinity
+service = {
+  annotations = v_annotations
+  ports = v_ports
+  type = v_type
+}
+})}
+
+
