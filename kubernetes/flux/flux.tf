@@ -13,7 +13,7 @@ resource "kubernetes_namespace" "flux_system" {
     }
   }
   lifecycle {
-    prevent_destroy = true
+    #prevent_destroy = true
     ignore_changes = [
       metadata[0].labels,
       metadata[0].annotations,
@@ -86,9 +86,6 @@ resource "kubectl_manifest" "install" {
   wait_for_rollout = false
 
   yaml_body = each.value
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 data "kubectl_file_documents" "sync" {
@@ -100,9 +97,6 @@ resource "kubectl_manifest" "sync" {
   depends_on = [kubectl_manifest.install, kubernetes_namespace.flux_system]
 
   yaml_body = each.value
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 resource "kubernetes_secret" "cluster" {
