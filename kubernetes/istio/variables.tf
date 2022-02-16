@@ -19,7 +19,7 @@ variable "hub" {
 variable "istio_version" {
   description = "Version of Istio, this will read the apropriate operator config within this repo"
   type        = string
-  default     = "1.12.1"
+  default     = "1.12.2"
 }
 
 variable "ingress_autoscaling" {
