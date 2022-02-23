@@ -146,6 +146,10 @@ resource "helm_release" "istiod" {
     name  = "global.network"
     value = var.network
   }
+  set {
+    name  = "global.tracer.zipkin.address"
+    value = var.zipkin
+  }
 }
 
 resource "helm_release" "ingress" {

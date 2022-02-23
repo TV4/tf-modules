@@ -128,3 +128,9 @@ variable "helm_repository" {
   type        = string
   default     = "https://istio-release.storage.googleapis.com/charts"
 }
+
+variable "zipkin" {
+  description = "Jaeger and Zipkin url"
+  type        = string
+  default     = ""
+}
