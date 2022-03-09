@@ -42,10 +42,10 @@ resource "kubernetes_secret" "this" {
     namespace = kubernetes_namespace.istio_system.id
   }
   data = {
-    "ca-cert.pem"    = file("certs/ca-cert.pem")
-    "ca-key.pem"     = file("certs/ca-key.pem")
-    "root-cert.pem"  = file("certs/root-cert.pem")
-    "cert-chain.pem" = file("certs/cert-chain.pem")
+    "ca-cert.pem"    = file("${var.cert_path}/certs/ca-cert.pem")
+    "ca-key.pem"     = file("${var.cert_path}/certs/ca-key.pem")
+    "root-cert.pem"  = file("${var.cert_path}/certs/root-cert.pem")
+    "cert-chain.pem" = file("${var.cert_path}/certs/cert-chain.pem")
   }
 }
 

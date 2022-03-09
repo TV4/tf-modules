@@ -123,6 +123,12 @@ variable "enable_predefined_cacerts" {
   default     = true
 }
 
+variable "cert_path" {
+  description = "Relative directory for certificates"
+  type        = string
+  default     = "."
+}
+
 variable "helm_repository" {
   description = "URL for helm repo"
   type        = string
