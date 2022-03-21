@@ -8,7 +8,8 @@ data "aws_iam_policy_document" "cluster_autoscaler" {
       "autoscaling:DescribeTags",
       "autoscaling:SetDesiredCapacity",
       "autoscaling:TerminateInstanceInAutoScalingGroup",
-      "ec2:DescribeLaunchTemplateVersions"
+      "ec2:DescribeLaunchTemplateVersions",
+      "ec2:DescribeInstanceTypes"
     ]
     resources = ["*"]
   }
@@ -120,3 +121,27 @@ module "loadbalancer" {
   policy_json                = file("${path.module}/policies/loadbalancer_policy.json")
 }
 
+data "aws_iam_policy_document" "fluent_bit" {
+  statement {
+    sid    = "UtilizeES"
+    effect = "Allow"
+    actions = [
+      "es:ESHttp*"
+    ]
+    resources = ["arn:aws:es:::domain/teliatv4media/*"]
+  }
+}
+
+module "fluent_bit" {
+  source = "../irsa"
+  name   = "${var.name}-fluent-bit"
+  oidc_providers = [
+    {
+      url = module.eks.cluster_oidc_issuer_url
+      arn = module.eks.oidc_provider_arn
+    }
+  ]
+  kubernetes_namespace       = "logging"
+  kubernetes_service_account = "fluent-bit"
+  policy_json                = data.aws_iam_policy_document.fluent_bit.json
+}
