@@ -35,19 +35,19 @@ resource "kubernetes_namespace" "istio_ingress" {
   depends_on = [var.cluster_resource]
 }
 
-resource "kubernetes_secret" "this" {
-  count = var.enable_predefined_cacerts ? 1 : 0
-  metadata {
-    name      = "cacerts"
-    namespace = kubernetes_namespace.istio_system.id
-  }
-  data = {
-    "ca-cert.pem"    = file("${var.cert_path}/certs/ca-cert.pem")
-    "ca-key.pem"     = file("${var.cert_path}/certs/ca-key.pem")
-    "root-cert.pem"  = file("${var.cert_path}/certs/root-cert.pem")
-    "cert-chain.pem" = file("${var.cert_path}/certs/cert-chain.pem")
-  }
-}
+#resource "kubernetes_secret" "this" {
+#  count = var.enable_predefined_cacerts ? 1 : 0
+#  metadata {
+#    name      = "cacerts"
+#    namespace = kubernetes_namespace.istio_system.id
+#  }
+#  data = {
+#    "ca-cert.pem"    = file("certs/ca-cert.pem")
+#    "ca-key.pem"     = file("certs/ca-key.pem")
+#    "root-cert.pem"  = file("certs/root-cert.pem")
+#    "cert-chain.pem" = file("certs/cert-chain.pem")
+#  }
+#}
 
 resource "helm_release" "base" {
   name       = "istio-base"
