@@ -169,22 +169,21 @@ resource "helm_release" "ingress" {
 }
 
 # Remove until they merge https://github.com/istio/istio/pull/36422
-# resource "helm_release" "eastwest" {
-#   count      = var.enable_predefined_cacerts ? 1 : 0
-#   name       = "istio-eastwestgateway"
-#   namespace  = "istio-ingress"
-#   depends_on = [helm_release.istiod, kubernetes_namespace.istio_ingress]
-#   repository = var.helm_repository
-#   chart      = "gateway"
-#   version    = var.istio_version
-#   values = [templatefile("${path.module}/templates/eastwest.yaml",
-#     {
-#       v_network     = var.network,
-#       v_autoscaling = var.ingress_autoscaling,
-#       v_tolerations = var.ingress_tolerations,
-#       v_affinity    = var.ingress_affinity,
-#       v_annotations = var.ingress_service_annotations
-#     }
-#   )]
-# }
+resource "helm_release" "eastwest" {
+  name       = "istio-eastwestgateway"
+  namespace  = "istio-ingress"
+  depends_on = [helm_release.istiod, kubernetes_namespace.istio_ingress]
+  repository = var.helm_repository
+  chart      = "gateway"
+  version    = var.istio_version
+  values = [templatefile("${path.module}/templates/eastwest.yaml",
+    {
+      v_network     = var.network,
+      v_autoscaling = var.ingress_autoscaling,
+      v_tolerations = var.ingress_tolerations,
+      v_affinity    = var.ingress_affinity,
+      v_annotations = var.ingress_service_annotations
+    }
+  )]
+}
 # TBD: add egress gateway helm install, utilizing ClusterIP for service.
