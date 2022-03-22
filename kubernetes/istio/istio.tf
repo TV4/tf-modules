@@ -35,20 +35,6 @@ resource "kubernetes_namespace" "istio_ingress" {
   depends_on = [var.cluster_resource]
 }
 
-#resource "kubernetes_secret" "this" {
-#  count = var.enable_predefined_cacerts ? 1 : 0
-#  metadata {
-#    name      = "cacerts"
-#    namespace = kubernetes_namespace.istio_system.id
-#  }
-#  data = {
-#    "ca-cert.pem"    = file("certs/ca-cert.pem")
-#    "ca-key.pem"     = file("certs/ca-key.pem")
-#    "root-cert.pem"  = file("certs/root-cert.pem")
-#    "cert-chain.pem" = file("certs/cert-chain.pem")
-#  }
-#}
-
 resource "helm_release" "base" {
   name       = "istio-base"
   namespace  = "istio-system"
@@ -57,49 +43,6 @@ resource "helm_release" "base" {
   chart      = "base"
   version    = var.istio_version
 }
-
-# FIXME: OPENSHIFT ONLY!?
-# resource "helm_release" "cni" {
-#   name       = "istio-cni"
-#   namespace  = "kube-system"
-#   depends_on = [helm_release.base]
-#   repository = var.helm_repository
-#   chart      = "cni"
-#   version    = var.istio_version
-#   #wait       = false
-#   set {
-#     name  = "global.hub"
-#     value = var.hub
-#   }
-#   set {
-#     name  = "cni.cniBinDir"
-#     value = "/var/lib/cni/bin"
-#   }
-#   set {
-#     name  = "cni.cniConfDir"
-#     value = "/etc/cni/multus/net.d"
-#   }
-#   set {
-#     name  = "cni.cniConfFileName"
-#     value = "istio-cni.conf"
-#   }
-#   set {
-#     name  = "cni.chained"
-#     value = "false"
-#   }
-#   set {
-#     name  = "cni.repair.enabled"
-#     value = "false"
-#   }
-#   set {
-#     name  = "cni.logLevel"
-#     value = "info"
-#   }
-#   postrender {
-#     binary_path = "${path.module}/patch-ocp-cni.sh"
-#   }
-
-# }
 
 resource "helm_release" "istiod" {
   name      = "istiod"
@@ -118,19 +61,6 @@ resource "helm_release" "istiod" {
     name  = "global.proxy.holdApplicationUntilProxyStarts"
     value = true
   }
-
-  # set {
-  #   name  = "istio_cni.enabled"
-  #   value = "true"
-  # }
-  # set {
-  #   name  = "sidecarInjectorWebhook.injectedAnnotations.k8s\\.v1\\.cni\\.cncf\\.io/networks"
-  #   value = "istio-cni"
-  # }
-  #  set {
-  #  name  = "global.proxy.resources"
-  #  value = var.proxy_resources
-  #}
   set {
     name  = "global.multiCluster.enabled"
     value = var.multi_cluster.enabled
@@ -168,7 +98,6 @@ resource "helm_release" "ingress" {
   )]
 }
 
-# Remove until they merge https://github.com/istio/istio/pull/36422
 resource "helm_release" "eastwest" {
   name       = "istio-eastwestgateway"
   namespace  = "istio-ingress"
@@ -186,4 +115,5 @@ resource "helm_release" "eastwest" {
     }
   )]
 }
+
 # TBD: add egress gateway helm install, utilizing ClusterIP for service.
