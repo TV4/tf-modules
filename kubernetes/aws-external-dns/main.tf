@@ -45,7 +45,19 @@ resource "helm_release" "this" {
     value = "external-dns"
   }
   set {
-    name  = "sources"
-    value = var.sources
+    name  = "sources[0]"
+    value = "service"
+  }
+  set {
+    name  = "sources[1]"
+    value = "ingress"
+  }
+  set {
+    name  = "sources[2]"
+    value = "istio-gateway"
+  }
+  set {
+    name  = "sources[3]"
+    value = "istio-virtualservice"
   }
 }

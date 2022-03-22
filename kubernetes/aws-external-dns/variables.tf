@@ -23,9 +23,3 @@ variable "zone_type" {
   type        = string
   default     = "public"
 }
-
-variable "sources" {
-  description = "optional sources to scan"
-  type        = set(string)
-  default     = ["service", "ingress", "istio-virtualservice", "istio-gateway"]
-}
