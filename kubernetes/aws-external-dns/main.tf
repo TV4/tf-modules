@@ -45,7 +45,7 @@ resource "helm_release" "this" {
     value = "external-dns"
   }
   set {
-    name  = "sources[0]"
+    name  = "sources"
     value = var.sources
   }
 }
