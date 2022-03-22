@@ -14,24 +14,18 @@ module "oidc" {
   namespace = "external-dns"
 }
 
+
+
 resource "helm_release" "this" {
   name       = "external-dns"
   namespace  = "external-dns"
-  repository = "https://charts.bitnami.com/bitnami"
+  repository = "https://kubernetes-sigs.github.io/external-dns"
   chart      = "external-dns"
   depends_on = [module.oidc]
 
   set {
     name  = "provider"
     value = "aws"
-  }
-  set {
-    name  = "aws.region"
-    value = var.region
-  }
-  set {
-    name  = "aws.zoneType"
-    value = var.zone_type
   }
   # This sets a restriction on that we can only have one EKS cluster with this name in each zone.
   set {
