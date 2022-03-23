@@ -1,0 +1,50 @@
+name: Terraform docs
+
+on:
+  pull_request:
+    paths:
+      - "**/*.tf"
+
+jobs:
+  module-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.folder-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Generate terraform folder matrix
+        id: folder-matrix
+        run: |
+          # generating JSON list with all terraform module folders
+          MATRIX=$( tree -J -L 2 -d --noreport -f | jq .[].contents[].contents[].name | jq -s '{"modules": .}' )
+
+          # changing variable to one long string only
+          MATRIX=$( echo $MATRIX | jq -c . )
+
+          # printing list of directories
+          echo $MATRIX
+          echo "::set-output name=matrix::$MATRIX"
+
+  terraform-docs:
+    runs-on: ubuntu-latest
+    needs: module-matrix
+    name: "terraform docs: ${{ matrix.modules }}"
+    strategy:
+      max-parallel: 1
+      matrix: ${{ fromJson(needs.module-matrix.outputs.matrix) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Terraform docs for ${{ matrix.modules }}
+        uses: terraform-docs/gh-actions@main
+        with:
+          git-push: true
+          git-commit-message: "terraform-docs: ${{ matrix.modules }} (automated action)"
+          working-dir: ${{ matrix.modules }}
