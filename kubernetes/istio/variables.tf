@@ -1,3 +1,9 @@
+variable "enable_helmrelease_cni" {
+  description = "Whether to use cni helmrelease or not"
+  type = bool
+  default = true
+}
+
 variable "cluster_resource" {
   description = "Optional cluster resource to depend on"
   type = object({

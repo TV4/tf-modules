@@ -60,6 +60,7 @@ resource "helm_release" "base" {
 
 # FIXME: OPENSHIFT ONLY!?
 resource "helm_release" "cni" {
+  count      = var.enable_helmrelease_cni ? 1 : 0
   name       = "istio-cni"
   namespace  = "kube-system"
   depends_on = [helm_release.base]
@@ -104,6 +105,8 @@ resource "helm_release" "cni" {
 resource "helm_release" "istiod" {
   name       = "istiod"
   namespace  = "istio-system"
+  # Below should work even if above gets count=0, because the node will still be
+  # in the graph, but empty.
   depends_on = [helm_release.cni]
   repository = var.helm_repository
   chart      = "istiod"
