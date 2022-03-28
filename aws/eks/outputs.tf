@@ -35,3 +35,7 @@ output "loadbalancer_config" {
     role_arn = module.loadbalancer.role_arn
   }
 }
+
+output "oidc_issuer_url" {
+  value = data.aws_eks_cluster.cluster.cluster_oidc_issuer_url
+}

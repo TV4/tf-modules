@@ -12,7 +12,6 @@ resource "kubernetes_namespace" "istio_operator" {
     }
   }
   lifecycle {
-    prevent_destroy = true
     ignore_changes = [
       metadata[0].labels,
       metadata[0].annotations,
@@ -29,7 +28,6 @@ resource "kubernetes_namespace" "istio_system" {
     }
   }
   lifecycle {
-    prevent_destroy = true
     ignore_changes = [
       metadata[0].labels,
       metadata[0].annotations,
