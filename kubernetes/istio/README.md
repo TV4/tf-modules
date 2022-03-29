@@ -35,6 +35,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_cluster_resource"></a> [cluster\_resource](#input\_cluster\_resource) | Optional cluster resource to depend on | <pre>object({<br>    name = string<br>    arn  = string<br>  })</pre> | <pre>{<br>  "arn": "",<br>  "name": ""<br>}</pre> | no |
+| <a name="input_enable_helmrelease_cni"></a> [enable\_helmrelease\_cni](#input\_enable\_helmrelease\_cni) | Whether to use cni helmrelease or not | `bool` | `true` | no |
 | <a name="input_enable_predefined_cacerts"></a> [enable\_predefined\_cacerts](#input\_enable\_predefined\_cacerts) | Will read certificate files from folder structure if enabled, required for multicluster functionality | `bool` | `true` | no |
 | <a name="input_helm_repository"></a> [helm\_repository](#input\_helm\_repository) | URL for helm repo | `string` | `"https://istio-release.storage.googleapis.com/charts"` | no |
 | <a name="input_hub"></a> [hub](#input\_hub) | Artifact registry to pull images from for istio | `string` | `"gcr.io/istio-release"` | no |

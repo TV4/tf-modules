@@ -57,4 +57,5 @@
 | <a name="output_external_dns_config"></a> [external\_dns\_config](#output\_external\_dns\_config) | Configuration for External DNS |
 | <a name="output_kube_config"></a> [kube\_config](#output\_kube\_config) | Kube config for the created EKS cluster |
 | <a name="output_loadbalancer_config"></a> [loadbalancer\_config](#output\_loadbalancer\_config) | Configuration for Loadbalancer |
+| <a name="output_oidc_issuer_url"></a> [oidc\_issuer\_url](#output\_oidc\_issuer\_url) | n/a |
 <!-- END_TF_DOCS -->
