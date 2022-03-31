@@ -35,6 +35,17 @@ resource "kubernetes_namespace" "istio_ingress" {
   depends_on = [var.cluster_resource]
 }
 
+resource "kubectl_manifest" "cni" {
+  count      = var.enable_helmrelease_cni ? 1 : 0
+  depends_on = [kubernetes_namespace.istio_ingress]
+  yaml_body  = <<YAML
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: istio-cni
+  namespace: istio-ingress
+YAML
+}
 #resource "kubernetes_secret" "this" {
 #  count = var.enable_predefined_cacerts ? 1 : 0
 #  metadata {
@@ -103,8 +114,8 @@ resource "helm_release" "cni" {
 }
 
 resource "helm_release" "istiod" {
-  name       = "istiod"
-  namespace  = "istio-system"
+  name      = "istiod"
+  namespace = "istio-system"
   # Below should work even if above gets count=0, because the node will still be
   # in the graph, but empty.
   depends_on = [helm_release.cni]
