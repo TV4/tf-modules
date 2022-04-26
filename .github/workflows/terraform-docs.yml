@@ -14,12 +14,28 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
+      - name: Configure git credentials
+        uses: oleksiyrudenko/gha-git-credentials@v2
+        with:
+          token: "${{ secrets.GITHUB_TOKEN }}"
+
       - name: Terraform docs for module folders
         uses: terraform-docs/gh-actions@main
+        id: terraform-docs-step
         with:
-          #git-push: true
           recursive: true
 
-      - name: Debug
+      - name: Pushing updated README.md files to repo
+        if: steps.terraform-docs-step.outputs.num_changed > 1
         run: |
-          git status
+          # removing README.md from root
+          git restore --staged README.md
+
+          # add files from modules folder
+          git add modules/
+
+          # commit of changes
+          git commit -m "terraform-docs: automated action"
+
+          # pushing changes to repo
+          git push
