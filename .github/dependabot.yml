@@ -1,6 +1,54 @@
 version: 2
 updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: github-actions
+    directory: /
     schedule:
-      interval: "daily"
+      interval: daily
+  - package-ecosystem: terraform
+    directory: modules/aws-eks
+    schedule:
+      interval: daily
+  - package-ecosystem: terraform
+    directory: modules/aws-irsa
+    schedule:
+      interval: daily
+  - package-ecosystem: terraform
+    directory: modules/aws-secretsmanager
+    schedule:
+      interval: daily
+  - package-ecosystem: terraform
+    directory: modules/k8s-core
+    schedule:
+      interval: daily
+  - package-ecosystem: terraform
+    directory: modules/k8s-eks-cluster-autoscaler
+    schedule:
+      interval: daily
+  - package-ecosystem: terraform
+    directory: modules/k8s-eks-external-dns
+    schedule:
+      interval: daily
+  - package-ecosystem: terraform
+    directory: modules/k8s-eks-lb-controller
+    schedule:
+      interval: daily
+  - package-ecosystem: terraform
+    directory: modules/k8s-eks-oidc-service-account
+    schedule:
+      interval: daily
+  - package-ecosystem: terraform
+    directory: modules/k8s-flux
+    schedule:
+      interval: daily
+  - package-ecosystem: terraform
+    directory: modules/k8s-flux-extras
+    schedule:
+      interval: daily
+  - package-ecosystem: terraform
+    directory: modules/k8s-istio
+    schedule:
+      interval: daily
+  - package-ecosystem: terraform
+    directory: modules/k8s-ocp-core
+    schedule:
+      interval: daily
