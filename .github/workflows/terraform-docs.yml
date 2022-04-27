@@ -7,6 +7,8 @@ on:
   push:
     paths:
       - "**/*.tf"
+    branches:
+      - main
 
 jobs:
   terraform-docs:
