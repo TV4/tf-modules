@@ -1,0 +1,52 @@
+name: Dependabot updater
+
+on:
+  schedule:
+    - cron: "11 1 * * *" # this is UTC time
+  workflow_dispatch:
+
+jobs:
+  terraform-modules:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Convert .github/dependabot.yml into JSON
+        uses: mikefarah/yq@master
+        id: dependabot-to-json
+        with:
+          cmd: yq -o=json -I=0 '.' .github/dependabot.yml
+
+      - name: Write JSON to file for manipulation
+        run: |
+          # Write dependabot JSON to file (except terraform package-ecosystem entries)
+          echo '${{ steps.dependabot-to-json.outputs.result }}' | jq 'del(.updates[] | select(."package-ecosystem" == "terraform"))' > .github/dependabot.json
+
+          # loop over all terraform module folders
+          for FOLDER in modules/*
+          do
+            # add a new package-ecosystem entry
+            jq --arg modulefolder "$FOLDER" '.updates |= . + [ { "package-ecosystem": "terraform", "directory": $modulefolder, "schedule": { "interval": "daily" } } ]' .github/dependabot.json > .github/dependabot-2.json
+
+            # replace .github/dependabot.json with updated content
+            mv .github/dependabot-2.json .github/dependabot.json
+          done
+
+      - name: Convert .github/dependabot.json into YAML
+        uses: mikefarah/yq@master
+        id: dependabot-to-yaml
+        with:
+          cmd: yq -P .github/dependabot.json
+
+      - name: Write YAML to file
+        run: |
+          # Write dependabot YAML to file
+          echo '${{ steps.dependabot-to-yaml.outputs.result }}' > .github/dependabot.yml
+
+      - name: Commit updated .github/dependabot.yml file
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: .github/dependabot.yml
+          default_author: github_actions
+          message: "dependabot-updater: automated action"
