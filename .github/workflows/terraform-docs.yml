@@ -5,7 +5,7 @@ on:
     paths:
       - "**/*.tf"
     branches-ignore:
-      - "dependabot/terraform/**"
+      - "dependabot/**"
   push:
     paths:
       - "**/*.tf"
