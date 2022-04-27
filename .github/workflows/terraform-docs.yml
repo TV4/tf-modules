@@ -4,16 +4,13 @@ on:
   pull_request:
     paths:
       - "**/*.tf"
-    branches-ignore:
-      - "dependabot/**"
   push:
     paths:
       - "**/*.tf"
-    branches-ignore:
-      - "dependabot/**"
 
 jobs:
   terraform-docs:
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
