@@ -9,8 +9,8 @@ on:
   push:
     paths:
       - "**/*.tf"
-    branches:
-      - "main"
+    branches-ignore:
+      - "dependabot/**"
 
 jobs:
   terraform-docs:
