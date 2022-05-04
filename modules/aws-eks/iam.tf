@@ -16,7 +16,7 @@ data "aws_iam_policy_document" "cluster_autoscaler" {
 }
 
 module "cluster_autoscaler" {
-  source = "../irsa"
+  source = "../aws-irsa"
 
   name = "${var.name}-cluster-autoscaler"
   oidc_providers = [
@@ -59,7 +59,7 @@ data "aws_iam_policy_document" "cert_manager" {
 }
 
 module "cert_manager" {
-  source = "../irsa"
+  source = "../aws-irsa"
 
   name = "${var.name}-cert-manager"
   oidc_providers = [
@@ -94,7 +94,7 @@ data "aws_iam_policy_document" "external_dns" {
 }
 
 module "external_dns" {
-  source = "../irsa"
+  source = "../aws-irsa"
   name   = "${var.name}-external-dns"
   oidc_providers = [
     {
@@ -108,7 +108,7 @@ module "external_dns" {
 }
 
 module "loadbalancer" {
-  source = "../irsa"
+  source = "../aws-irsa"
   name   = "${var.name}-aws-load-balancer-controller"
   oidc_providers = [
     {
@@ -133,7 +133,7 @@ data "aws_iam_policy_document" "fluent_bit" {
 }
 
 module "fluent_bit" {
-  source = "../irsa"
+  source = "../aws-irsa"
   name   = "${var.name}-fluent-bit"
   oidc_providers = [
     {
