@@ -15,7 +15,7 @@
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_oidc"></a> [oidc](#module\_oidc) | ../aws-oidc-service-account | n/a |
+| <a name="module_oidc"></a> [oidc](#module\_oidc) | ../k8s-eks-oidc-service-account | n/a |
 
 ## Resources
 

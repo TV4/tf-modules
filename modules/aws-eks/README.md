@@ -16,12 +16,12 @@
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_cert_manager"></a> [cert\_manager](#module\_cert\_manager) | ../irsa | n/a |
-| <a name="module_cluster_autoscaler"></a> [cluster\_autoscaler](#module\_cluster\_autoscaler) | ../irsa | n/a |
+| <a name="module_cert_manager"></a> [cert\_manager](#module\_cert\_manager) | ../aws-irsa | n/a |
+| <a name="module_cluster_autoscaler"></a> [cluster\_autoscaler](#module\_cluster\_autoscaler) | ../aws-irsa | n/a |
 | <a name="module_eks"></a> [eks](#module\_eks) | terraform-aws-modules/eks/aws | 17.20.0 |
-| <a name="module_external_dns"></a> [external\_dns](#module\_external\_dns) | ../irsa | n/a |
-| <a name="module_fluent_bit"></a> [fluent\_bit](#module\_fluent\_bit) | ../irsa | n/a |
-| <a name="module_loadbalancer"></a> [loadbalancer](#module\_loadbalancer) | ../irsa | n/a |
+| <a name="module_external_dns"></a> [external\_dns](#module\_external\_dns) | ../aws-irsa | n/a |
+| <a name="module_fluent_bit"></a> [fluent\_bit](#module\_fluent\_bit) | ../aws-irsa | n/a |
+| <a name="module_loadbalancer"></a> [loadbalancer](#module\_loadbalancer) | ../aws-irsa | n/a |
 
 ## Resources
 
