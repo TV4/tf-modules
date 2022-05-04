@@ -8,7 +8,7 @@ terraform {
 }
 
 module "oidc" {
-  source    = "../aws-oidc-service-account"
+  source    = "../k8s-eks-oidc-service-account"
   role_arn  = var.role_arn
   name      = "cluster-autoscaler"
   namespace = "cluster-autoscaler"
