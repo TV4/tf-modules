@@ -71,6 +71,7 @@ jobs:
           # loop over all terraform module folders
           for FOLDER in modules/*
           do
+            echo "## $FOLDER"
             terraform -chdir="$FOLDER" init
             terraform -chdir="$FOLDER" validate
           done
