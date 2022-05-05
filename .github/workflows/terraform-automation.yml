@@ -1,4 +1,4 @@
-name: Terraform docs
+name: Terraform automation
 
 on:
   pull_request:
