@@ -1,3 +1,5 @@
+# k8s-eks-oidc-service-account
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -9,7 +11,7 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | ~> 2.4.1 |
+| <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | 2.4.1 |
 
 ## Modules
 

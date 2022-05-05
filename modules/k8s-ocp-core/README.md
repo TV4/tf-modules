@@ -1,3 +1,5 @@
+# k8s-ocp-core
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -18,8 +20,8 @@ No providers.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_flux"></a> [flux](#module\_flux) | ../flux | n/a |
-| <a name="module_flux_extras"></a> [flux\_extras](#module\_flux\_extras) | ../flux-extras | n/a |
+| <a name="module_flux"></a> [flux](#module\_flux) | ../k8s-flux | n/a |
+| <a name="module_flux_extras"></a> [flux\_extras](#module\_flux\_extras) | ../k8s-flux-extras | n/a |
 
 ## Resources
 

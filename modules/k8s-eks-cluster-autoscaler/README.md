@@ -1,3 +1,5 @@
+# k8s-eks-cluster-autoscaler
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -9,7 +11,7 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_helm"></a> [helm](#provider\_helm) | ~> 2.2.0 |
+| <a name="provider_helm"></a> [helm](#provider\_helm) | 2.2.0 |
 
 ## Modules
 
