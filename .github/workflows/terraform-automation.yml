@@ -6,6 +6,28 @@ on:
       - "**/*.tf"
 
 jobs:
+  terraform-fmt:
+    if: github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Install of Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Running Terraform fmt
+        run: |
+          terraform fmt -diff -recursive
+
+      - name: Commit (fmt) updated files
+        uses: EndBug/add-and-commit@v9
+        with:
+          default_author: github_actions
+          message: "terraform-fmt: automated action"
+
   terraform-docs:
     if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
