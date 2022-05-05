@@ -1,7 +1,7 @@
 variable "enable_helmrelease_cni" {
   description = "Whether to use cni helmrelease or not"
-  type = bool
-  default = true
+  type        = bool
+  default     = true
 }
 
 variable "cluster_resource" {
