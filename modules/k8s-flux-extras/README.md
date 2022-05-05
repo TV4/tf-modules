@@ -15,7 +15,7 @@
 | Name | Version |
 |------|---------|
 | <a name="provider_github"></a> [github](#provider\_github) | 4.13.0 |
-| <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | 2.4.1 |
+| <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | ~> 2.4.1 |
 | <a name="provider_tls"></a> [tls](#provider\_tls) | 3.1.0 |
 
 ## Modules
