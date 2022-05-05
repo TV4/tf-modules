@@ -1,0 +1,19 @@
+# .terraform-docs.yml
+content: |-
+  {{ .Header }}
+
+  {{ .Requirements }}
+
+  {{ .Providers }}
+
+  {{ .Modules }}
+
+  {{ .Resources }}
+
+  ## Example
+
+  Read more about the example [here](./examples/README.md).
+
+  {{ .Inputs }}
+
+  {{ .Outputs }}
