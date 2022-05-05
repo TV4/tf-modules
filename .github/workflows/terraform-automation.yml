@@ -4,11 +4,6 @@ on:
   pull_request:
     paths:
       - "**/*.tf"
-  push:
-    paths:
-      - "**/*.tf"
-    branches:
-      - main
 
 jobs:
   terraform-docs:
@@ -17,8 +12,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Terraform docs for module folders
+      - name: Running Terraform docs
         uses: terraform-docs/gh-actions@main
         with:
           recursive: true
@@ -30,7 +27,7 @@ jobs:
           # discarding changes
           git restore README.md
 
-      - name: Commit updated README.md files
+      - name: Commit (docs) updated files
         uses: EndBug/add-and-commit@v9
         with:
           default_author: github_actions
