@@ -28,7 +28,7 @@ terraform {
 }
 
 module "flux" {
-  source         = "../flux"
+  source         = "../k8s-flux"
   branch         = var.branch
   cluster_id     = var.cluster_id
   cluster_repo   = var.cluster_repo
@@ -38,7 +38,7 @@ module "flux" {
 }
 
 module "flux_extras" {
-  source       = "../flux-extras"
+  source       = "../k8s-flux-extras"
   branch       = var.branch
   cluster_id   = var.cluster_id
   cluster_repo = var.cluster_repo
