@@ -94,7 +94,7 @@ resource "aws_ecs_task_definition" "KeyCloakKeyCloakContainerSerivceTaskDef30C95
         "logDriver": "awslogs",
         "options": {
             "awslogs-group": "${aws_cloudwatch_log_group.KeyCloakKeyCloakContainerSerivceLogGroup010F2AAE.name}",
-            "awslogs-region": "${data.aws_region.current}",
+            "awslogs-region": "${data.aws_region.current.name}",
             "awslogs-stream-prefix": "bootstrap"
         }
       },
@@ -108,7 +108,7 @@ resource "aws_ecs_task_definition" "KeyCloakKeyCloakContainerSerivceTaskDef30C95
         "memory": 30720,
         "networkMode": "awsvpc",
         "requiredCapabilities": "FARGATE",
-        "tasRoleArn": "${aws_iam_role.KeyCloakKeyCloakContainerSerivceTaskDefTaskRole0DC4D418}",
+        "tasRoleArn": "${aws_iam_role.KeyCloakKeyCloakContainerSerivceTaskDefTaskRole0DC4D418.arn}",
         "executionRole": "${aws_iam_role.KeyCloakKeyCloakContainerSerivceTaskRole0658CED2.arn}"
         "image": "${local.KeyCloakKeyCloakContainerSerivceKeycloakImage}",
         "essential": true,
@@ -132,7 +132,7 @@ resource "aws_ecs_task_definition" "KeyCloakKeyCloakContainerSerivceTaskDef30C95
             "logDriver": "awslogs",
             "options": {
                 "awslogs-group": "${aws_cloudwatch_log_group.KeyCloakKeyCloakContainerSerivceLogGroup010F2AAE.name}",
-                "awslogs-region": "${data.aws_region.current}",
+                "awslogs-region": "${data.aws_region.current.name}",
                 "awslogs-stream-prefix": "bootstrap"
             }
         },
@@ -337,7 +337,7 @@ resource "aws_lb_target_group" "ECSTargetGroupCE3EF52C" {
   port        = 8443
   protocol    = "HTTPS"
   target_type = "ip"
-  vpc_id      = aws_vpc.key_cloak_vpc
+  vpc_id      = aws_vpc.key_cloak_vpc.id
   slow_start  = 60
   stickiness {
     enabled         = true

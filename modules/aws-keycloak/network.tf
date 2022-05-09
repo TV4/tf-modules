@@ -32,7 +32,7 @@ resource "aws_subnet" "key_cloak_vpc_public_subnet_1" {
 }
 
 resource "aws_route_table" "key_cloak_vpc_public_subnet_1_route_table" {
-  vpc_id = aws_vpc.key_cloak_vpc
+  vpc_id = aws_vpc.key_cloak_vpc.id
   tags = {
     Name = "keycloak-from-new-vpc/KeyCloak/Vpc/PublicSubnet1"
   }
@@ -77,7 +77,7 @@ resource "aws_subnet" "key_cloak_vpc_public_subnet_2" {
 }
 
 resource "aws_route_table" "key_cloak_vpc_public_subnet_2_route_table" {
-  vpc_id = aws_vpc.key_cloak_vpc
+  vpc_id = aws_vpc.key_cloak_vpc.id
   tags = {
     Name = "keycloak-from-new-vpc/KeyCloak/Vpc/PublicSubnet2"
   }
@@ -106,7 +106,7 @@ resource "aws_subnet" "key_cloak_vpc_private_subnet_1" {
 }
 
 resource "aws_route_table" "key_cloak_vpc_private_subnet_1_route_table" {
-  vpc_id = aws_vpc.key_cloak_vpc
+  vpc_id = aws_vpc.key_cloak_vpc.id
   tags = {
     Name = "keycloak-from-new-vpc/KeyCloak/Vpc/PrivateSubnet1"
   }
@@ -135,7 +135,7 @@ resource "aws_subnet" "key_cloak_vpc_private_subnet_2" {
 }
 
 resource "aws_route_table" "key_cloak_vpc_private_subnet_2_route_table" {
-  vpc_id = aws_vpc.key_cloak_vpc
+  vpc_id = aws_vpc.key_cloak_vpc.id
   tags = {
     Name = "keycloak-from-new-vpc/KeyCloak/Vpc/PrivateSubnet2"
   }
