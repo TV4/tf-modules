@@ -46,7 +46,7 @@ resource "aws_route_table_association" "key_cloak_vpc_public_subnet_1_route_tabl
 resource "aws_route" "key_cloak_vpc_public_subnet_1_default_route" {
   route_table_id         = aws_route_table.key_cloak_vpc_public_subnet_1_route_table.id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.key_cloak_vpc_igw
+  gateway_id             = aws_internet_gateway.key_cloak_vpc_igw.id
 }
 
 resource "aws_eip" "key_cloak_vpc_public_subnet_1_eip" {
@@ -91,7 +91,7 @@ resource "aws_route_table_association" "key_cloak_vpc_public_subnet_2_route_tabl
 resource "aws_route" "key_cloak_vpc_public_subnet_2_default_route" {
   route_table_id         = aws_route_table.key_cloak_vpc_public_subnet_2_route_table.id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.key_cloak_vpc_igw
+  gateway_id             = aws_internet_gateway.key_cloak_vpc_igw.id
 }
 
 resource "aws_subnet" "key_cloak_vpc_private_subnet_1" {
@@ -120,7 +120,7 @@ resource "aws_route_table_association" "key_cloak_vpc_private_subnet_1_route_tab
 resource "aws_route" "key_cloak_vpc_private_subnet_1_default_route" {
   route_table_id         = aws_route_table.key_cloak_vpc_private_subnet_1_route_table.id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_nat_gateway.key_cloak_vpc_public_subnet_1_nat_gateway
+  gateway_id             = aws_nat_gateway.key_cloak_vpc_public_subnet_1_nat_gateway.id
 }
 
 resource "aws_subnet" "key_cloak_vpc_private_subnet_2" {
@@ -149,5 +149,5 @@ resource "aws_route_table_association" "key_cloak_vpc_private_subnet_2_route_tab
 resource "aws_route" "key_cloak_vpc_private_subnet_2_default_route" {
   route_table_id         = aws_route_table.key_cloak_vpc_private_subnet_2_route_table.id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_nat_gateway.key_cloak_vpc_public_subnet_1_nat_gateway
+  gateway_id             = aws_nat_gateway.key_cloak_vpc_public_subnet_1_nat_gateway.id
 }
