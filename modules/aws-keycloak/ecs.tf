@@ -67,7 +67,7 @@ resource "aws_iam_role" "KeyCloakKeyCloakContainerSerivceTaskDefTaskRole0DC4D418
         Effect = "Allow"
         Sid    = ""
         Principal = {
-          Service = "ecs-task.amazonaws.com"
+          Service = "ecs-tasks.amazonaws.co"
         }
       },
     ]
