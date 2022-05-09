@@ -16,7 +16,7 @@ resource "aws_internet_gateway" "key_cloak_vpc_igw" {
 }
 
 resource "aws_internet_gateway_attachment" "key_cloak_vpc_igw_attachment" {
-  vpc_id         = aws_vpc.key_cloak_vpc.id
+  vpc_id              = aws_vpc.key_cloak_vpc.id
   internet_gateway_id = aws_internet_gateway.key_cloak_vpc_igw.id
 }
 
