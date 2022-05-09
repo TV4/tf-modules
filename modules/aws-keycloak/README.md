@@ -20,13 +20,13 @@ You will need to provide an AWS Certificate Manager certificate for Arn to provi
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 3.60.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.74.0, < 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 3.60.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.74.0, < 4.0.0 |
 
 ## Modules
 
