@@ -59,10 +59,10 @@ resource "aws_rds_cluster" "KeyCloakDatabaseDBCluster06E9C0E1" {
   db_cluster_parameter_group_name = "default.aurora-mysql5.7"
   db_subnet_group_name            = aws_db_subnet_group.KeyCloakDatabaseDBClusterSubnetsE36F1B1B.name
   master_username                 = "admin"
-  master_password                 = "${var.db_password}"
+  master_password                 = var.db_password
   # master_password                 = "${SECRET.keycloakfromnewvpcKeyCloakDatabaseDBClusterSecretD9030AC53fdaad7efa858a3daf9490cf0a702aeb}:SecretString:password::"
-  storage_encrypted               = true
-  vpc_security_group_ids          = [aws_security_group.KeyCloakDatabaseDBClusterSecurityGroup843B4392.id]
+  storage_encrypted      = true
+  vpc_security_group_ids = [aws_security_group.KeyCloakDatabaseDBClusterSecurityGroup843B4392.id]
 }
 
 resource "aws_rds_cluster_instance" "KeyCloakDatabaseDBClusterInstance12532FD3D" {

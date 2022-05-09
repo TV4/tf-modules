@@ -40,8 +40,8 @@ variable "max_containers" {
 }
 
 variable "auto_scaling_target_cpu_utilization" {
-  type        = number
-  default     = 75
+  type    = number
+  default = 75
 }
 
 variable "java_opts" {
