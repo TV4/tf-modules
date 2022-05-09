@@ -279,7 +279,7 @@ resource "aws_lb" "ContainerSerivceALBE100B67D" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.KeyCloakKeyCloakContainerSerivceALBSecurityGroup8F5103C6.id]
-  subnets            = [aws_subnet.key_cloak_vpc_public_subnet_1, aws_subnet.key_cloak_vpc_public_subnet_2]
+  subnets            = [aws_subnet.key_cloak_vpc_public_subnet_1.id, aws_subnet.key_cloak_vpc_public_subnet_2.id]
 
   enable_deletion_protection = false
 
