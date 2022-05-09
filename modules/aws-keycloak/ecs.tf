@@ -182,8 +182,8 @@ resource "aws_ecs_service" "KeyCloakKeyCloakContainerSerivceService79D3F427" {
     assign_public_ip = false
     security_groups  = [aws_security_group.KeyCloakKeyCloakContainerSerivceServiceSecurityGroup4C80023D.id]
     subnets = [
-      aws_subnet.key_cloak_vpc_private_subnet_1,
-      aws_subnet.key_cloak_vpc_private_subnet_2
+      aws_subnet.key_cloak_vpc_private_subnet_1.id,
+      aws_subnet.key_cloak_vpc_private_subnet_2.id
     ]
   }
 
