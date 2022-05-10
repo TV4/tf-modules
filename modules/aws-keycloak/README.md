@@ -49,7 +49,6 @@ No modules.
 | [aws_iam_role_policy.KeyCloakKeyCloakContainerSerivceTaskRoleDefaultPolicyA2321E87](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy_attachment.AmazonEC2ContainerRegistryReadOnly-role-policy-attach](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_internet_gateway.key_cloak_vpc_igw](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/internet_gateway) | resource |
-| [aws_internet_gateway_attachment.key_cloak_vpc_igw_attachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/internet_gateway_attachment) | resource |
 | [aws_lb.ContainerSerivceALBE100B67D](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb) | resource |
 | [aws_lb_listener.KeyCloakKeyCloakContainerSerivceALBHttpsListener140F85B9](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener) | resource |
 | [aws_lb_target_group.ECSTargetGroupCE3EF52C](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group) | resource |
@@ -97,7 +96,6 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_auto_scaling_target_cpu_utilization"></a> [auto\_scaling\_target\_cpu\_utilization](#input\_auto\_scaling\_target\_cpu\_utilization) | n/a | `number` | `75` | no |
-| <a name="input_certificate_arn"></a> [certificate\_arn](#input\_certificate\_arn) | n/a | `string` | n/a | yes |
 | <a name="input_database_instance_type"></a> [database\_instance\_type](#input\_database\_instance\_type) | Instance type to be used for the core instances | `string` | `"r5.large"` | no |
 | <a name="input_db_password"></a> [db\_password](#input\_db\_password) | n/a | `string` | n/a | yes |
 | <a name="input_java_opts"></a> [java\_opts](#input\_java\_opts) | JAVA\_OPTS environment variable | `string` | n/a | yes |
