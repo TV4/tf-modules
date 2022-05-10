@@ -23,9 +23,9 @@ variable "private_subnet_2_cidr_block" {
   default = "10.0.192.0/18"
 }
 
-variable "certificate_arn" {
-  type = string
-}
+# variable "certificate_arn" {
+#   type = string
+# }
 
 variable "min_containers" {
   description = "minimum containers count"

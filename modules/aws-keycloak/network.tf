@@ -15,10 +15,10 @@ resource "aws_internet_gateway" "key_cloak_vpc_igw" {
   }
 }
 
-resource "aws_internet_gateway_attachment" "key_cloak_vpc_igw_attachment" {
-  vpc_id              = aws_vpc.key_cloak_vpc.id
-  internet_gateway_id = aws_internet_gateway.key_cloak_vpc_igw.id
-}
+# resource "aws_internet_gateway_attachment" "key_cloak_vpc_igw_attachment" {
+#   vpc_id              = aws_vpc.key_cloak_vpc.id
+#   internet_gateway_id = aws_internet_gateway.key_cloak_vpc_igw.id
+# }
 
 resource "aws_subnet" "key_cloak_vpc_public_subnet_1" {
   vpc_id                  = aws_vpc.key_cloak_vpc.id
@@ -28,7 +28,7 @@ resource "aws_subnet" "key_cloak_vpc_public_subnet_1" {
   tags = {
     Name = "keycloak-from-new-vpc/KeyCloak/Vpc/PublicSubnet1"
   }
-  depends_on = [aws_internet_gateway_attachment.key_cloak_vpc_igw_attachment]
+  depends_on = [aws_internet_gateway.key_cloak_vpc_igw]
 }
 
 resource "aws_route_table" "key_cloak_vpc_public_subnet_1_route_table" {
@@ -51,7 +51,7 @@ resource "aws_route" "key_cloak_vpc_public_subnet_1_default_route" {
 
 resource "aws_eip" "key_cloak_vpc_public_subnet_1_eip" {
   vpc        = true
-  depends_on = [aws_internet_gateway_attachment.key_cloak_vpc_igw_attachment]
+  depends_on = [aws_internet_gateway.key_cloak_vpc_igw]
 }
 
 resource "aws_nat_gateway" "key_cloak_vpc_public_subnet_1_nat_gateway" {
@@ -62,7 +62,7 @@ resource "aws_nat_gateway" "key_cloak_vpc_public_subnet_1_nat_gateway" {
     Name = "keycloak-from-new-vpc/KeyCloak/Vpc/PublicSubnet1"
   }
 
-  depends_on = [aws_internet_gateway_attachment.key_cloak_vpc_igw_attachment]
+  depends_on = [aws_internet_gateway.key_cloak_vpc_igw]
 }
 
 resource "aws_subnet" "key_cloak_vpc_public_subnet_2" {
@@ -73,7 +73,7 @@ resource "aws_subnet" "key_cloak_vpc_public_subnet_2" {
   tags = {
     Name = "keycloak-from-new-vpc/KeyCloak/Vpc/PublicSubnet2"
   }
-  depends_on = [aws_internet_gateway_attachment.key_cloak_vpc_igw_attachment]
+  depends_on = [aws_internet_gateway.key_cloak_vpc_igw]
 }
 
 resource "aws_route_table" "key_cloak_vpc_public_subnet_2_route_table" {
@@ -102,7 +102,7 @@ resource "aws_subnet" "key_cloak_vpc_private_subnet_1" {
   tags = {
     Name = "keycloak-from-new-vpc/KeyCloak/Vpc/PrivateSubnet1"
   }
-  depends_on = [aws_internet_gateway_attachment.key_cloak_vpc_igw_attachment]
+  depends_on = [aws_internet_gateway.key_cloak_vpc_igw]
 }
 
 resource "aws_route_table" "key_cloak_vpc_private_subnet_1_route_table" {
@@ -131,7 +131,7 @@ resource "aws_subnet" "key_cloak_vpc_private_subnet_2" {
   tags = {
     Name = "keycloak-from-new-vpc/KeyCloak/Vpc/PrivateSubnet2"
   }
-  depends_on = [aws_internet_gateway_attachment.key_cloak_vpc_igw_attachment]
+  depends_on = [aws_internet_gateway.key_cloak_vpc_igw]
 }
 
 resource "aws_route_table" "key_cloak_vpc_private_subnet_2_route_table" {

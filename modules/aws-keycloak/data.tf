@@ -9,3 +9,4 @@ data "aws_availability_zones" "available" {
 data "aws_iam_policy" "AmazonEC2ContainerRegistryReadOnly" {
   arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
+

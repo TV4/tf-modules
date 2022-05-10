@@ -8,7 +8,8 @@ resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerRegistryReadOnly-ro
 }
 
 resource "aws_iam_role" "KeyCloakKeyCloakContainerSerivceTaskRole0658CED2" {
-  name = "KeyCloakKeyCloakContainerSerivceTaskRole0658CED2"
+  name                = "KeyCloakKeyCloakContainerSerivceTaskRole0658CED2"
+  managed_policy_arns = [data.aws_iam_policy.AmazonEC2ContainerRegistryReadOnly.arn]
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -33,7 +34,8 @@ resource "aws_iam_role_policy" "KeyCloakKeyCloakContainerSerivceTaskRoleDefaultP
       {
         Action = [
           "logs:CreateLogStream",
-          "logs:PutLogEvents"
+          "logs:PutLogEvents",
+          "logs:CreateLogGroup"
         ]
         Effect   = "Allow"
         Resource = aws_cloudwatch_log_group.KeyCloakKeyCloakContainerSerivceLogGroup010F2AAE.arn
@@ -67,7 +69,7 @@ resource "aws_iam_role" "KeyCloakKeyCloakContainerSerivceTaskDefTaskRole0DC4D418
         Effect = "Allow"
         Sid    = ""
         Principal = {
-          Service = "ecs-tasks.amazonaws.co"
+          Service = "ecs-tasks.amazonaws.com"
         }
       },
     ]
@@ -76,77 +78,138 @@ resource "aws_iam_role" "KeyCloakKeyCloakContainerSerivceTaskDefTaskRole0DC4D418
 
 
 resource "aws_ecs_task_definition" "KeyCloakKeyCloakContainerSerivceTaskDef30C9533A" {
-  family = "KeyCloakKeyCloakContainerSerivceTaskDef30C9533A"
-  # TODO Put passwords in proper secrets
+  family                   = "KeyCloakKeyCloakContainerSerivceTaskDef30C9533A"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  task_role_arn            = aws_iam_role.KeyCloakKeyCloakContainerSerivceTaskDefTaskRole0DC4D418.arn
+  execution_role_arn       = aws_iam_role.KeyCloakKeyCloakContainerSerivceTaskRole0658CED2.arn
+  cpu                      = 4096
+  memory                   = 30720
+
   container_definitions = <<DEFINITION
-  [
-    {
-      "name": "bootstrap",
-      "image": "${local.KeyCloakKeyCloakContainerSerivceBootstrapImage}",
-      "essential": false,
-      "command": ["sh", "-c", "mysql -u$DB_USER -p$DB_PASSWORD -h$DB_ADDR -e \"CREATE DATABASE IF NOT EXISTS $DB_NAME\""],
-      "environment": [
-        { "name": "DB_NAME", "value": "keycloak" },
-        { "name": "DB_USER", "value": "admin" },
-        { "name": "DB_ADDR", "value": "${aws_rds_cluster.KeyCloakDatabaseDBCluster06E9C0E1.endpoint}" },
-      ],
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "options": {
-            "awslogs-group": "${aws_cloudwatch_log_group.KeyCloakKeyCloakContainerSerivceLogGroup010F2AAE.name}",
-            "awslogs-region": "${data.aws_region.current.name}",
-            "awslogs-stream-prefix": "bootstrap"
-        }
-      },
-      "secrets": [
-          { "name": "DB_PASSWORD", "valueFrom": "${var.db_password}" },
-      ]
-    },
-    {
-        "name": "keycloak",
-        "cpu": 4096,
-        "memory": 30720,
-        "networkMode": "awsvpc",
-        "requiredCapabilities": "FARGATE",
-        "tasRoleArn": "${aws_iam_role.KeyCloakKeyCloakContainerSerivceTaskDefTaskRole0DC4D418.arn}",
-        "executionRole": "${aws_iam_role.KeyCloakKeyCloakContainerSerivceTaskRole0658CED2.arn}"
-        "image": "${local.KeyCloakKeyCloakContainerSerivceKeycloakImage}",
-        "essential": true,
-        "dependsOn": [
-            {"condition": "SUCCESS", "containerName": "bootstrap"},
-        ],
-        "environment": [
-            { "name": "DB_ADDR", "value": "${aws_rds_cluster.KeyCloakDatabaseDBCluster06E9C0E1.endpoint}" },
-            { "name": "DB_DATABASE", "value": "keycloak" },
-            { "name": "DB_PORT", "value": "3306" },
-            { "name": "DB_USER", "value": "admin" },
-            { "name": "DB_VENDOR", "value": "mysql" },
-            { "name": "JDBC_PARAMS", "value": "useSSL=false" },
-            { "name": "JGROUPS_DISCOVERY_PROTOCOL", "value": "JDBC_PING" },
-            { "name": "JAVA_OPTS", "value": "${var.java_opts}" }
-            { "name": "DB_PASSWORD", "value": "${var.db_password}" },
-            { "name": "KEYCLOAK_USER", "value": "${var.keycloak_user}" },
-            { "name": "KEYCLOAK_PASSWORD", "value": "${var.keycloak_password}"}
-        ],
-        "logConfiguration": {
-            "logDriver": "awslogs",
-            "options": {
-                "awslogs-group": "${aws_cloudwatch_log_group.KeyCloakKeyCloakContainerSerivceLogGroup010F2AAE.name}",
-                "awslogs-region": "${data.aws_region.current.name}",
-                "awslogs-stream-prefix": "bootstrap"
-            }
-        },
-        "portMappings": [
-            { "containerPort": 8443, "protocol": "tcp" },
-            { "containerPort": 7600, "protocol": "tcp" },
-            { "containerPort": 57600, "protocol": "tcp" },
-            { "containerPort": 55200, "protocol": "udp" },
-            { "containerPort": 54200, "protocol": "udp" }
-        ],
-        "Secrets": [
-        ]
-    }
-  ]
+  [{
+		"name": "bootstrap",
+		"image": "${local.KeyCloakKeyCloakContainerSerivceBootstrapImage}",
+		"essential": false,
+    "cpu": 1024,
+    "memory": 1024,
+		"command": ["sh", "-c", "mysql -u$DB_USER -p$DB_PASSWORD -h$DB_ADDR -e \"CREATE DATABASE IF NOT EXISTS $DB_NAME\""],
+		"environment": [{
+				"name": "DB_NAME",
+				"value": "keycloak"
+			},
+			{
+				"name": "DB_USER",
+				"value": "admin"
+			},
+			{
+				"name": "DB_ADDR",
+				"value": "${aws_rds_cluster.KeyCloakDatabaseDBCluster06E9C0E1.endpoint}"
+			},
+      {
+			"name": "DB_PASSWORD",
+			"value": "${var.db_password}"
+		}
+		],
+		"logConfiguration": {
+			"logDriver": "awslogs",
+			"options": {
+				"awslogs-group": "${aws_cloudwatch_log_group.KeyCloakKeyCloakContainerSerivceLogGroup010F2AAE.name}",
+				"awslogs-region": "${data.aws_region.current.name}",
+				"awslogs-stream-prefix": "bootstrap"
+			}
+		}
+	},
+	{
+		"name": "keycloak",
+		"cpu": 3068,
+		"memory": 29696,
+		"networkMode": "awsvpc",
+		"requiredCapabilities": "FARGATE",
+		"taskRoleArn": "${aws_iam_role.KeyCloakKeyCloakContainerSerivceTaskDefTaskRole0DC4D418.arn}",
+		"executionRole": "${aws_iam_role.KeyCloakKeyCloakContainerSerivceTaskRole0658CED2.arn}",
+		"image": "${local.KeyCloakKeyCloakContainerSerivceKeycloakImage}",
+		"essential": true,
+		"dependsOn": [{
+			"condition": "SUCCESS",
+			"containerName": "bootstrap"
+		}],
+		"environment": [{
+				"name": "DB_ADDR",
+				"value": "${aws_rds_cluster.KeyCloakDatabaseDBCluster06E9C0E1.endpoint}"
+			},
+			{
+				"name": "DB_DATABASE",
+				"value": "keycloak"
+			},
+			{
+				"name": "DB_PORT",
+				"value": "3306"
+			},
+			{
+				"name": "DB_USER",
+				"value": "admin"
+			},
+			{
+				"name": "DB_VENDOR",
+				"value": "mysql"
+			},
+			{
+				"name": "JDBC_PARAMS",
+				"value": "useSSL=false"
+			},
+			{
+				"name": "JGROUPS_DISCOVERY_PROTOCOL",
+				"value": "JDBC_PING"
+			},
+			{
+				"name": "JAVA_OPTS",
+				"value": "${var.java_opts}"
+			}, {
+				"name": "DB_PASSWORD",
+				"value": "${var.db_password}"
+			},
+			{
+				"name": "KEYCLOAK_USER",
+				"value": "${var.keycloak_user}"
+			},
+			{
+				"name": "KEYCLOAK_PASSWORD",
+				"value": "${var.keycloak_password}"
+			}
+		],
+		"logConfiguration": {
+			"logDriver": "awslogs",
+			"options": {
+				"awslogs-group": "${aws_cloudwatch_log_group.KeyCloakKeyCloakContainerSerivceLogGroup010F2AAE.name}",
+				"awslogs-region": "${data.aws_region.current.name}",
+				"awslogs-stream-prefix": "bootstrap"
+			}
+		},
+		"portMappings": [{
+				"containerPort": 8443,
+				"protocol": "tcp"
+			},
+			{
+				"containerPort": 7600,
+				"protocol": "tcp"
+			},
+			{
+				"containerPort": 57600,
+				"protocol": "tcp"
+			},
+			{
+				"containerPort": 55200,
+				"protocol": "udp"
+			},
+			{
+				"containerPort": 54200,
+				"protocol": "udp"
+			}
+		],
+		"Secrets": []
+	}
+]
   DEFINITION
 }
 
@@ -259,7 +322,7 @@ resource "aws_appautoscaling_target" "KeyCloakKeyCloakContainerSerivceServiceTas
 }
 
 resource "aws_appautoscaling_policy" "KeyCloakKeyCloakContainerSerivceServiceTaskCountTargetCpuScaling1480DC0B" {
-  policy_type        = "KeyCloakKeyCloakContainerSerivceServiceTaskCountTargetCpuScaling1480DC0B"
+  policy_type        = "TargetTrackingScaling"
   name               = "keycloakfromnewvpcKeyCloakKeyCloakContainerSerivceServiceTaskCountTargetCpuScaling97B57114"
   resource_id        = aws_appautoscaling_target.KeyCloakKeyCloakContainerSerivceServiceTaskCountTarget0EDF86B3.resource_id
   scalable_dimension = "ecs:service:DesiredCount"
@@ -320,10 +383,10 @@ resource "aws_security_group_rule" "KeyCloakKeyCloakContainerSerivceServiceSecur
 }
 
 resource "aws_lb_listener" "KeyCloakKeyCloakContainerSerivceALBHttpsListener140F85B9" {
-  port              = "443"
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = var.certificate_arn
+  port     = "80"
+  protocol = "HTTP"
+  # ssl_policy        = "ELBSecurityPolicy-2016-08"
+  #certificate_arn   = var.certificate_arn
   load_balancer_arn = aws_lb.ContainerSerivceALBE100B67D.arn
 
   default_action {

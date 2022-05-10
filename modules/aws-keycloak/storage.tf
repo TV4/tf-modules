@@ -1,6 +1,6 @@
 resource "aws_db_subnet_group" "KeyCloakDatabaseDBClusterSubnetsE36F1B1B" {
   name       = "keycloakdatabasedbclustersubnetse36f1b1b"
-  subnet_ids = [aws_subnet.key_cloak_vpc_private_subnet_2.id, aws_subnet.key_cloak_vpc_private_subnet_2.id]
+  subnet_ids = [aws_subnet.key_cloak_vpc_private_subnet_1.id, aws_subnet.key_cloak_vpc_private_subnet_2.id]
 }
 
 resource "aws_security_group" "KeyCloakDatabaseDBClusterSecurityGroup843B4392" {
@@ -35,7 +35,6 @@ resource "aws_security_group_rule" "KeyCloakDatabaseDBClusterSecurityGroup843B43
   from_port                = 3306
   to_port                  = 3306
   protocol                 = "tcp"
-  cidr_blocks              = [aws_vpc.key_cloak_vpc.cidr_block]
   description              = "from keycloakfromnewvpcKeyCloakDatabaseDBClusterSecurityGroupB3AAFA04:3306"
   security_group_id        = aws_security_group.KeyCloakDatabaseDBClusterSecurityGroup843B4392.id
   source_security_group_id = aws_security_group.KeyCloakDatabaseDBClusterSecurityGroup843B4392.id
