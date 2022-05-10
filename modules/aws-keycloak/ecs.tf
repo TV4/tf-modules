@@ -81,11 +81,11 @@ resource "aws_ecs_task_definition" "KeyCloakKeyCloakContainerSerivceTaskDef30C95
   family                   = "KeyCloakKeyCloakContainerSerivceTaskDef30C9533A"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  task_role_arn        = aws_iam_role.KeyCloakKeyCloakContainerSerivceTaskDefTaskRole0DC4D418.arn
+  task_role_arn            = aws_iam_role.KeyCloakKeyCloakContainerSerivceTaskDefTaskRole0DC4D418.arn
   execution_role_arn       = aws_iam_role.KeyCloakKeyCloakContainerSerivceTaskRole0658CED2.arn
   cpu                      = 4096
-  memory                   = 30720 
-  
+  memory                   = 30720
+
   container_definitions = <<DEFINITION
   [{
 		"name": "bootstrap",
