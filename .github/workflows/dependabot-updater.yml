@@ -45,8 +45,17 @@ jobs:
           echo '${{ steps.dependabot-to-yaml.outputs.result }}' > .github/dependabot.yml
 
       - name: Commit updated .github/dependabot.yml file
-        uses: EndBug/add-and-commit@v9
+        uses: peter-evans/create-pull-request@v4
         with:
-          add: .github/dependabot.yml
-          default_author: github_actions
-          message: "dependabot-updater: automated action"
+          add-paths: |
+            .github/dependabot.yml
+          commit-message: "dependabot-updater: automated action"
+          branch: dependabot-updater-pr
+          base: main
+          delete-branch: true
+          title: "dependabot-updater: automated action"
+          body: |
+            this is an automated PR created by *.github/workflows/dependabot-updater.yml*
+          labels: |
+            dependencies
+            github-actions

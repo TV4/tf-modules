@@ -13,6 +13,10 @@ updates:
     schedule:
       interval: daily
   - package-ecosystem: terraform
+    directory: modules/aws-keycloak
+    schedule:
+      interval: daily
+  - package-ecosystem: terraform
     directory: modules/aws-secretsmanager
     schedule:
       interval: daily
