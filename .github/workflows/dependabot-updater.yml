@@ -51,6 +51,7 @@ jobs:
             .github/dependabot.yml
           commit-message: "dependabot-updater: automated action"
           branch: dependabot-updater-pr
+          base: main
           delete-branch: true
           title: "dependabot-updater: automated action"
           body: |
