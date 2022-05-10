@@ -113,11 +113,10 @@ resource "helm_release" "cni" {
 
 }
 
-resource "helm_release" "istiod" {
-  name      = "istiod"
-  namespace = "istio-system"
-  # Below should work even if above gets count=0, because the node will still be
-  # in the graph, but empty.
+resource "helm_release" "istiod_cni" {
+  count      = var.enable_helmrelease_cni ? 1 : 0
+  name       = "istiod"
+  namespace  = "istio-system"
   depends_on = [helm_release.cni]
   repository = var.helm_repository
   chart      = "istiod"
@@ -131,7 +130,6 @@ resource "helm_release" "istiod" {
     name  = "global.proxy.holdApplicationUntilProxyStarts"
     value = true
   }
-
   set {
     name  = "istio_cni.enabled"
     value = "true"
@@ -140,10 +138,6 @@ resource "helm_release" "istiod" {
     name  = "sidecarInjectorWebhook.injectedAnnotations.k8s\\.v1\\.cni\\.cncf\\.io/networks"
     value = "istio-cni"
   }
-  #  set {
-  #  name  = "global.proxy.resources"
-  #  value = var.proxy_resources
-  #}
   set {
     name  = "global.multiCluster.enabled"
     value = var.multi_cluster.enabled
@@ -164,12 +158,59 @@ resource "helm_release" "istiod" {
     name  = "global.tracer.zipkin.address"
     value = var.zipkin
   }
+  set {
+    name  = "pilot.autoscaleMin"
+    value = 2
+  }
+}
+
+resource "helm_release" "istiod" {
+  count      = var.enable_helmrelease_cni ? 0 : 1
+  name       = "istiod"
+  namespace  = "istio-system"
+  depends_on = [helm_release.base]
+  repository = var.helm_repository
+  chart      = "istiod"
+  version    = var.istio_version
+
+  set {
+    name  = "global.hub"
+    value = var.hub
+  }
+  set {
+    name  = "global.proxy.holdApplicationUntilProxyStarts"
+    value = true
+  }
+  set {
+    name  = "global.multiCluster.enabled"
+    value = var.multi_cluster.enabled
+  }
+  set {
+    name  = "global.multiCluster.clusterName"
+    value = var.multi_cluster.clusterName
+  }
+  set {
+    name  = "global.meshID"
+    value = var.meshID
+  }
+  set {
+    name  = "global.network"
+    value = var.network
+  }
+  set {
+    name  = "global.tracer.zipkin.address"
+    value = var.zipkin
+  }
+  set {
+    name  = "pilot.autoscaleMin"
+    value = 2
+  }
 }
 
 resource "helm_release" "ingress" {
   name       = "istio-ingress"
   namespace  = "istio-ingress"
-  depends_on = [helm_release.istiod, kubernetes_namespace.istio_ingress]
+  depends_on = [helm_release.istiod, helm_release.istiod_cni, kubernetes_namespace.istio_ingress]
   repository = var.helm_repository
   chart      = "gateway"
   version    = var.istio_version
