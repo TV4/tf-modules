@@ -18,7 +18,7 @@ terraform {
     }
     github = {
       source  = "integrations/github"
-      version = "4.24.1"
+      version = "4.25.0"
     }
     kubectl = {
       source  = "gavinbunney/kubectl"
