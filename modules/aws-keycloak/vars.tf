@@ -1,31 +1,6 @@
-variable "vpc_cidr_block" {
-  type    = string
-  default = "10.0.0.0/16"
+variable "certificate_arn" {
+  type = string
 }
-
-variable "public_subnet_1_cidr_block" {
-  type    = string
-  default = "10.0.0.0/18"
-}
-
-variable "public_subnet_2_cidr_block" {
-  type    = string
-  default = "10.0.64.0/18"
-}
-
-variable "private_subnet_1_cidr_block" {
-  type    = string
-  default = "10.0.128.0/18"
-}
-
-variable "private_subnet_2_cidr_block" {
-  type    = string
-  default = "10.0.192.0/18"
-}
-
-# variable "certificate_arn" {
-#   type = string
-# }
 
 variable "min_containers" {
   description = "minimum containers count"
@@ -55,11 +30,16 @@ variable "database_instance_type" {
   default     = "r5.large"
 }
 
-variable "db_password" {
+variable "database_instance_count" {
+  type        = number
+  default     = 2
+}
+
+variable "db_password_secret_arn" {
   type = string
 }
 
-variable "keycloak_password" {
+variable "keycloak_password_secret_arn" {
   type = string
 }
 
@@ -71,3 +51,27 @@ variable "tags" {
   type = object({})
 }
 
+variable "db_deletion_protection" {
+  type = bool
+  default = true
+}
+
+variable "access_logs_s3_bucket_name" {
+  type = string
+}
+
+variable "secrets_manager_kms_key_alias" {
+  type = string  
+}
+
+variable "vpc_id" {
+  type = string
+}
+
+variable "private_subnets" {
+  type = list(string)
+}
+
+variable "public_subnets" {
+  type = list(string)
+}
