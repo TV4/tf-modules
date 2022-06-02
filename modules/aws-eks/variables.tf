@@ -53,3 +53,15 @@ variable "node_groups" {
   description = "List of Node worker groups"
 }
 
+variable "cluster_identity_providers" {
+  description = "OIDC connection for external keycloak"
+}
+# Example
+# cluster_identity_providers = {
+#   keycloak = {
+#     client_id                     = <keycloak_client_id>
+#     identity_provider_config_name = "Keycloak"
+#     issuer_url                    = "https://<keycloak_url>/auth/realms/<realm_name>"
+#     groups_claim                  = "groups"
+#   }
+# }
