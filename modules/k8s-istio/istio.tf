@@ -131,6 +131,22 @@ resource "helm_release" "istiod_cni" {
     value = true
   }
   set {
+    name  = "global.proxy.resources.requests.cpu"
+    value = var.proxy_resources.requests.cpu
+  }
+  set {
+    name  = "global.proxy.resources.requests.memory"
+    value = var.proxy_resources.requests.memory
+  }
+  set {
+    name  = "global.proxy.resources.limits.cpu"
+    value = var.proxy_resources.limits.cpu
+  }
+  set {
+    name  = "global.proxy.resources.limits.memory"
+    value = var.proxy_resources.limits.memory
+  }
+  set {
     name  = "istio_cni.enabled"
     value = "true"
   }
@@ -180,6 +196,22 @@ resource "helm_release" "istiod" {
   set {
     name  = "global.proxy.holdApplicationUntilProxyStarts"
     value = true
+  }
+  set {
+    name  = "global.proxy.resources.requests.cpu"
+    value = var.proxy_resources.requests.cpu
+  }
+  set {
+    name  = "global.proxy.resources.requests.memory"
+    value = var.proxy_resources.requests.memory
+  }
+  set {
+    name  = "global.proxy.resources.limits.cpu"
+    value = var.proxy_resources.limits.cpu
+  }
+  set {
+    name  = "global.proxy.resources.limits.memory"
+    value = var.proxy_resources.limits.memory
   }
   set {
     name  = "global.multiCluster.enabled"
