@@ -1,15 +1,17 @@
-resource "aws_ecs_cluster" "KeyCloakKeyCloakContainerSerivceClusterA18E44FF" {
-  name = "KeyCloakKeyCloakContainerSerivceClusterA18E44FF"
+resource "aws_ecs_cluster" "keycloak_ecs_cluster" {
+  name = "keycloak_ecs_cluster"
+  tags = local.default_tags
 }
 
-resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerRegistryReadOnly-role-policy-attach" {
-  role       = aws_iam_role.KeyCloakKeyCloakContainerSerivceTaskRole0658CED2.name
-  policy_arn = data.aws_iam_policy.AmazonEC2ContainerRegistryReadOnly.arn
+resource "aws_iam_role_policy_attachment" "amazon_ec2_container_registry_read_only" {
+  role       = aws_iam_role.keycloak_container_service_task_execution_role.name
+  policy_arn = data.aws_iam_policy.amazon_ec2_container_registry_read_only.arn
 }
 
-resource "aws_iam_role" "KeyCloakKeyCloakContainerSerivceTaskRole0658CED2" {
-  name                = "KeyCloakKeyCloakContainerSerivceTaskRole0658CED2"
-  managed_policy_arns = [data.aws_iam_policy.AmazonEC2ContainerRegistryReadOnly.arn]
+resource "aws_iam_role" "keycloak_container_service_task_execution_role" {
+  name                = "keycloak_container_service_task_execution_role"
+  managed_policy_arns = [data.aws_iam_policy.amazon_ec2_container_registry_read_only.arn]
+  tags                = local.default_tags
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -25,9 +27,9 @@ resource "aws_iam_role" "KeyCloakKeyCloakContainerSerivceTaskRole0658CED2" {
   })
 }
 
-resource "aws_iam_role_policy" "KeyCloakKeyCloakContainerSerivceTaskRoleDefaultPolicyA2321E87" {
-  name = "KeyCloakKeyCloakContainerSerivceTaskRoleDefaultPolicyA2321E87"
-  role = aws_iam_role.KeyCloakKeyCloakContainerSerivceTaskRole0658CED2.id
+resource "aws_iam_role_policy" "keycloak_container_service_task_execution_role" {
+  name = "keycloak_container_service_task_execution_role"
+  role = aws_iam_role.keycloak_container_service_task_execution_role.id
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -38,29 +40,32 @@ resource "aws_iam_role_policy" "KeyCloakKeyCloakContainerSerivceTaskRoleDefaultP
           "logs:CreateLogGroup"
         ]
         Effect   = "Allow"
-        Resource = aws_cloudwatch_log_group.KeyCloakKeyCloakContainerSerivceLogGroup010F2AAE.arn
+        Resource = "${aws_cloudwatch_log_group.keycloak_ecs_service.arn}:*"
       },
-      #   {
-      #     Action = [
-      #         "secretsmanager:GetSecretValue",
-      #         "secretsmanager:DescribeSecret"
-      #     ]
-      #     Effect   = "Allow"
-      #     Resource = foobar.KeyCloakDatabaseDBClusterSecretAttachment50401C92.arn
-      #   },
-      #   {
-      #     Action = [
-      #         "SecretsManager:GetSecretValue",
-      #         "secretsmanager:DescribeSecret"
-      #     ]
-      #     Effect   = "Allow"
-      #     Resource = foobar.KeyCloakKCSecretF8498E5C.arn
-      #   },
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret",
+        ]
+        Resource = [
+          var.db_password_secret_arn,
+          var.keycloak_password_secret_arn
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "kms:Decrypt"
+        ]
+        Resource = [data.aws_kms_key.secretsmanager.arn]
+      },
     ]
   })
 }
 
-resource "aws_iam_role" "KeyCloakKeyCloakContainerSerivceTaskDefTaskRole0DC4D418" {
+resource "aws_iam_role" "keycloak_container_service_task_role" {
+  tags = local.default_tags
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -71,29 +76,36 @@ resource "aws_iam_role" "KeyCloakKeyCloakContainerSerivceTaskDefTaskRole0DC4D418
         Principal = {
           Service = "ecs-tasks.amazonaws.com"
         }
-      },
+      }
     ]
   })
 }
 
 
-resource "aws_ecs_task_definition" "KeyCloakKeyCloakContainerSerivceTaskDef30C9533A" {
-  family                   = "KeyCloakKeyCloakContainerSerivceTaskDef30C9533A"
+resource "aws_ecs_task_definition" "keycloak_task_definition" {
+  tags                     = local.default_tags
+  family                   = "keycloak_task_definition"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  task_role_arn            = aws_iam_role.KeyCloakKeyCloakContainerSerivceTaskDefTaskRole0DC4D418.arn
-  execution_role_arn       = aws_iam_role.KeyCloakKeyCloakContainerSerivceTaskRole0658CED2.arn
+  task_role_arn            = aws_iam_role.keycloak_container_service_task_role.arn
+  execution_role_arn       = aws_iam_role.keycloak_container_service_task_execution_role.arn
   cpu                      = 4096
   memory                   = 30720
 
   container_definitions = <<DEFINITION
   [{
 		"name": "bootstrap",
-		"image": "${local.KeyCloakKeyCloakContainerSerivceBootstrapImage}",
+		"image": "${local.mysql_bootstrap_image}",
 		"essential": false,
     "cpu": 1024,
     "memory": 1024,
 		"command": ["sh", "-c", "mysql -u$DB_USER -p$DB_PASSWORD -h$DB_ADDR -e \"CREATE DATABASE IF NOT EXISTS $DB_NAME\""],
+    "secrets": [
+      {
+        "name": "DB_PASSWORD",
+        "valueFrom": "${var.db_password_secret_arn}"
+      }
+    ],
 		"environment": [{
 				"name": "DB_NAME",
 				"value": "keycloak"
@@ -104,17 +116,13 @@ resource "aws_ecs_task_definition" "KeyCloakKeyCloakContainerSerivceTaskDef30C95
 			},
 			{
 				"name": "DB_ADDR",
-				"value": "${aws_rds_cluster.KeyCloakDatabaseDBCluster06E9C0E1.endpoint}"
-			},
-      {
-			"name": "DB_PASSWORD",
-			"value": "${var.db_password}"
-		}
+				"value": "${aws_rds_cluster.db_cluster.endpoint}"
+		  }
 		],
 		"logConfiguration": {
 			"logDriver": "awslogs",
 			"options": {
-				"awslogs-group": "${aws_cloudwatch_log_group.KeyCloakKeyCloakContainerSerivceLogGroup010F2AAE.name}",
+				"awslogs-group": "${aws_cloudwatch_log_group.keycloak_ecs_service.name}",
 				"awslogs-region": "${data.aws_region.current.name}",
 				"awslogs-stream-prefix": "bootstrap"
 			}
@@ -126,17 +134,25 @@ resource "aws_ecs_task_definition" "KeyCloakKeyCloakContainerSerivceTaskDef30C95
 		"memory": 29696,
 		"networkMode": "awsvpc",
 		"requiredCapabilities": "FARGATE",
-		"taskRoleArn": "${aws_iam_role.KeyCloakKeyCloakContainerSerivceTaskDefTaskRole0DC4D418.arn}",
-		"executionRole": "${aws_iam_role.KeyCloakKeyCloakContainerSerivceTaskRole0658CED2.arn}",
-		"image": "${local.KeyCloakKeyCloakContainerSerivceKeycloakImage}",
+		"image": "${local.keycloak_image}",
 		"essential": true,
 		"dependsOn": [{
 			"condition": "SUCCESS",
 			"containerName": "bootstrap"
 		}],
+    "secrets": [
+      {
+        "name": "KEYCLOAK_PASSWORD",
+        "valueFrom": "${var.keycloak_password_secret_arn}"
+      },
+      {
+        "name": "DB_PASSWORD",
+        "valueFrom": "${var.db_password_secret_arn}"
+      }
+    ],
 		"environment": [{
 				"name": "DB_ADDR",
-				"value": "${aws_rds_cluster.KeyCloakDatabaseDBCluster06E9C0E1.endpoint}"
+				"value": "${aws_rds_cluster.db_cluster.endpoint}"
 			},
 			{
 				"name": "DB_DATABASE",
@@ -165,25 +181,18 @@ resource "aws_ecs_task_definition" "KeyCloakKeyCloakContainerSerivceTaskDef30C95
 			{
 				"name": "JAVA_OPTS",
 				"value": "${var.java_opts}"
-			}, {
-				"name": "DB_PASSWORD",
-				"value": "${var.db_password}"
 			},
 			{
 				"name": "KEYCLOAK_USER",
 				"value": "${var.keycloak_user}"
-			},
-			{
-				"name": "KEYCLOAK_PASSWORD",
-				"value": "${var.keycloak_password}"
 			}
 		],
 		"logConfiguration": {
 			"logDriver": "awslogs",
 			"options": {
-				"awslogs-group": "${aws_cloudwatch_log_group.KeyCloakKeyCloakContainerSerivceLogGroup010F2AAE.name}",
+				"awslogs-group": "${aws_cloudwatch_log_group.keycloak_ecs_service.name}",
 				"awslogs-region": "${data.aws_region.current.name}",
-				"awslogs-stream-prefix": "bootstrap"
+				"awslogs-stream-prefix": "keycloak"
 			}
 		},
 		"portMappings": [{
@@ -206,60 +215,54 @@ resource "aws_ecs_task_definition" "KeyCloakKeyCloakContainerSerivceTaskDef30C95
 				"containerPort": 54200,
 				"protocol": "udp"
 			}
-		],
-		"Secrets": []
+		]
 	}
 ]
   DEFINITION
 }
 
-resource "aws_cloudwatch_log_group" "KeyCloakKeyCloakContainerSerivceLogGroup010F2AAE" {
-  name = "KeyCloakKeyCloakContainerSerivceLogGroup010F2AAE"
-
+resource "aws_cloudwatch_log_group" "keycloak_ecs_service" {
+  name              = "keycloak_ecs_service"
   retention_in_days = 30
-  tags = {
-    Environment = "production"
-    Application = "serviceA"
-  }
+  tags              = local.default_tags
 }
 
 
-resource "aws_ecs_service" "KeyCloakKeyCloakContainerSerivceService79D3F427" {
-  name                               = "KeyCloakKeyCloakContainerSerivceService79D3F427"
-  cluster                            = aws_ecs_cluster.KeyCloakKeyCloakContainerSerivceClusterA18E44FF.id
-  task_definition                    = aws_ecs_task_definition.KeyCloakKeyCloakContainerSerivceTaskDef30C9533A.arn
+resource "aws_ecs_service" "keycloak_ecs_service" {
+  name                               = "keycloak_ecs_service"
+  cluster                            = aws_ecs_cluster.keycloak_ecs_cluster.id
+  task_definition                    = aws_ecs_task_definition.keycloak_task_definition.arn
   deployment_maximum_percent         = 200
   deployment_minimum_healthy_percent = 50
   desired_count                      = var.min_containers
   enable_ecs_managed_tags            = false
   health_check_grace_period_seconds  = 120
   launch_type                        = "FARGATE"
+  tags                               = local.default_tags
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.ECSTargetGroupCE3EF52C.arn
+    target_group_arn = aws_lb_target_group.ecs.arn
     container_name   = "keycloak"
     container_port   = 8443
   }
 
   network_configuration {
     assign_public_ip = false
-    security_groups  = [aws_security_group.KeyCloakKeyCloakContainerSerivceServiceSecurityGroup4C80023D.id]
-    subnets = [
-      aws_subnet.key_cloak_vpc_private_subnet_1.id,
-      aws_subnet.key_cloak_vpc_private_subnet_2.id
-    ]
+    security_groups  = [aws_security_group.keycloak_container_service.id]
+    subnets          = var.private_subnets
   }
 
   depends_on = [
-    aws_lb_target_group.ECSTargetGroupCE3EF52C,
-    aws_lb_listener.KeyCloakKeyCloakContainerSerivceALBHttpsListener140F85B9,
+    aws_lb_target_group.ecs,
+    aws_lb_listener.keycloak_https,
 
   ]
 }
 
-resource "aws_security_group" "KeyCloakKeyCloakContainerSerivceServiceSecurityGroup4C80023D" {
-  description = "keycloak-from-new-vpc/KeyCloak/KeyCloakContainerSerivce/Service/SecurityGroup"
-  vpc_id      = aws_vpc.key_cloak_vpc.id
+resource "aws_security_group" "keycloak_container_service" {
+  description = "Keycloak ECS Service"
+  vpc_id      = var.vpc_id
+  tags        = local.default_tags
 }
 
 resource "aws_security_group_rule" "ingress7600" {
@@ -268,63 +271,73 @@ resource "aws_security_group_rule" "ingress7600" {
   to_port                  = 7600
   protocol                 = "tcp"
   type                     = "ingress"
-  security_group_id        = aws_security_group.KeyCloakKeyCloakContainerSerivceServiceSecurityGroup4C80023D.id
-  source_security_group_id = aws_security_group.KeyCloakKeyCloakContainerSerivceALBSecurityGroup8F5103C6.id
+  security_group_id        = aws_security_group.keycloak_container_service.id
+  source_security_group_id = aws_security_group.alb_sg.id
 }
 
-resource "aws_security_group_rule" "ingress57600" {
+resource "aws_security_group_rule" "ing_jgroups_tcp_fd" {
   description              = "kc jgroups-tcp-fd"
   from_port                = 57600
   to_port                  = 57600
   protocol                 = "tcp"
   type                     = "ingress"
-  security_group_id        = aws_security_group.KeyCloakKeyCloakContainerSerivceServiceSecurityGroup4C80023D.id
-  source_security_group_id = aws_security_group.KeyCloakKeyCloakContainerSerivceServiceSecurityGroup4C80023D.id
+  security_group_id        = aws_security_group.keycloak_container_service.id
+  source_security_group_id = aws_security_group.keycloak_container_service.id
 }
 
-resource "aws_security_group_rule" "ingress55200" {
+resource "aws_security_group_rule" "ing_jgroups_udp" {
   description              = "kc jgroups-udp"
   from_port                = 55200
   to_port                  = 55200
   protocol                 = "udp"
   type                     = "ingress"
-  security_group_id        = aws_security_group.KeyCloakKeyCloakContainerSerivceServiceSecurityGroup4C80023D.id
-  source_security_group_id = aws_security_group.KeyCloakKeyCloakContainerSerivceServiceSecurityGroup4C80023D.id
+  security_group_id        = aws_security_group.keycloak_container_service.id
+  source_security_group_id = aws_security_group.keycloak_container_service.id
 }
 
-resource "aws_security_group_rule" "ingress54200" {
+resource "aws_security_group_rule" "ing_jgroups_udp_fd" {
   description              = "kc jgroups-udp-fd"
   from_port                = 54200
   to_port                  = 54200
   protocol                 = "udp"
   type                     = "ingress"
-  security_group_id        = aws_security_group.KeyCloakKeyCloakContainerSerivceServiceSecurityGroup4C80023D.id
-  source_security_group_id = aws_security_group.KeyCloakKeyCloakContainerSerivceServiceSecurityGroup4C80023D.id
+  security_group_id        = aws_security_group.keycloak_container_service.id
+  source_security_group_id = aws_security_group.keycloak_container_service.id
 }
 
-resource "aws_security_group_rule" "ingress8443" {
+resource "aws_security_group_rule" "ing_https_tcp" {
   from_port                = 8443
   to_port                  = 8443
   protocol                 = "tcp"
   type                     = "ingress"
-  security_group_id        = aws_security_group.KeyCloakKeyCloakContainerSerivceServiceSecurityGroup4C80023D.id
-  source_security_group_id = aws_security_group.KeyCloakKeyCloakContainerSerivceALBSecurityGroup8F5103C6.id
+  security_group_id        = aws_security_group.keycloak_container_service.id
+  source_security_group_id = aws_security_group.alb_sg.id
 }
 
-resource "aws_appautoscaling_target" "KeyCloakKeyCloakContainerSerivceServiceTaskCountTarget0EDF86B3" {
+resource "aws_security_group_rule" "egress_all_from_ecs" {
+  description       = "Allow all outbound traffic by default"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "-1"
+  type              = "egress"
+  security_group_id = aws_security_group.keycloak_container_service.id
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_appautoscaling_target" "ecs_task_count" {
   max_capacity       = var.max_containers
   min_capacity       = var.min_containers
-  resource_id        = "service/${aws_ecs_cluster.KeyCloakKeyCloakContainerSerivceClusterA18E44FF.name}/${aws_ecs_service.KeyCloakKeyCloakContainerSerivceService79D3F427.name}"
+  resource_id        = "service/${aws_ecs_cluster.keycloak_ecs_cluster.name}/${aws_ecs_service.keycloak_ecs_service.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
   role_arn           = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
 
 }
 
-resource "aws_appautoscaling_policy" "KeyCloakKeyCloakContainerSerivceServiceTaskCountTargetCpuScaling1480DC0B" {
+resource "aws_appautoscaling_policy" "keycloak" {
   policy_type        = "TargetTrackingScaling"
   name               = "keycloakfromnewvpcKeyCloakKeyCloakContainerSerivceServiceTaskCountTargetCpuScaling97B57114"
-  resource_id        = aws_appautoscaling_target.KeyCloakKeyCloakContainerSerivceServiceTaskCountTarget0EDF86B3.resource_id
+  resource_id        = aws_appautoscaling_target.ecs_task_count.resource_id
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
   target_tracking_scaling_policy_configuration {
@@ -336,33 +349,25 @@ resource "aws_appautoscaling_policy" "KeyCloakKeyCloakContainerSerivceServiceTas
   }
 }
 
-
-resource "aws_lb" "ContainerSerivceALBE100B67D" {
-  name               = "ContainerSerivceALBE100B67D"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.KeyCloakKeyCloakContainerSerivceALBSecurityGroup8F5103C6.id]
-  subnets            = [aws_subnet.key_cloak_vpc_public_subnet_1.id, aws_subnet.key_cloak_vpc_public_subnet_2.id]
-
+resource "aws_lb" "keycloak_ecs_service" {
+  name                       = "key-cloak-ecs-service"
+  internal                   = false
+  load_balancer_type         = "application"
+  security_groups            = [aws_security_group.alb_sg.id]
+  subnets                    = var.public_subnets
+  tags                       = local.default_tags
   enable_deletion_protection = false
 
-  #   access_logs {
-  #     bucket  = aws_s3_bucket.lb_logs.bucket
-  #     prefix  = "test-lb"
-  #     enabled = true
-  #   }
-
-  depends_on = [
-    aws_route.key_cloak_vpc_public_subnet_1_default_route,
-    aws_route.key_cloak_vpc_public_subnet_2_default_route,
-  ]
+  access_logs {
+    bucket  = aws_s3_bucket.keycloak_lb_access_logs.bucket
+    enabled = true
+  }
 }
 
-resource "aws_security_group" "KeyCloakKeyCloakContainerSerivceALBSecurityGroup8F5103C6" {
-  name        = "KeyCloakKeyCloakContainerSerivceALBSecurityGroup8F5103C6"
-  description = "Automatically created Security Group for ELB keycloakfromnewvpcKeyCloakKeyCloakContainerSerivceALB6949C8EF"
-  vpc_id      = aws_vpc.key_cloak_vpc.id
-
+resource "aws_security_group" "alb_sg" {
+  name   = "Keycloak ALB"
+  vpc_id = var.vpc_id
+  tags   = local.default_tags
   ingress {
     description      = "Allow from anyone on port 443"
     from_port        = 443
@@ -373,34 +378,35 @@ resource "aws_security_group" "KeyCloakKeyCloakContainerSerivceALBSecurityGroup8
   }
 }
 
-resource "aws_security_group_rule" "KeyCloakKeyCloakContainerSerivceServiceSecurityGroupfromkeycloakfromnewvpcKeyCloakKeyCloakContainerSerivceALBSecurityGroupFD2CC2BD8443F1CBDED3" {
+resource "aws_security_group_rule" "egress_https_tcp" {
   from_port                = 8443
   to_port                  = 8443
   protocol                 = "tcp"
   type                     = "egress"
-  security_group_id        = aws_security_group.KeyCloakKeyCloakContainerSerivceALBSecurityGroup8F5103C6.id
-  source_security_group_id = aws_security_group.KeyCloakKeyCloakContainerSerivceServiceSecurityGroup4C80023D.id
+  security_group_id        = aws_security_group.alb_sg.id
+  source_security_group_id = aws_security_group.keycloak_container_service.id
 }
 
-resource "aws_lb_listener" "KeyCloakKeyCloakContainerSerivceALBHttpsListener140F85B9" {
-  port     = "80"
-  protocol = "HTTP"
-  # ssl_policy        = "ELBSecurityPolicy-2016-08"
-  #certificate_arn   = var.certificate_arn
-  load_balancer_arn = aws_lb.ContainerSerivceALBE100B67D.arn
-
+resource "aws_lb_listener" "keycloak_https" {
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = var.certificate_arn
+  load_balancer_arn = aws_lb.keycloak_ecs_service.arn
+  tags              = local.default_tags
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.ECSTargetGroupCE3EF52C.arn
+    target_group_arn = aws_lb_target_group.ecs.arn
   }
 }
 
-resource "aws_lb_target_group" "ECSTargetGroupCE3EF52C" {
-  name        = "ECSTargetGroupCE3EF52C"
+resource "aws_lb_target_group" "ecs" {
+  name        = "Keycloak-ECS"
   port        = 8443
   protocol    = "HTTPS"
   target_type = "ip"
-  vpc_id      = aws_vpc.key_cloak_vpc.id
+  tags        = local.default_tags
+  vpc_id      = var.vpc_id
   slow_start  = 60
   stickiness {
     enabled         = true
