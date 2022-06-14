@@ -82,5 +82,5 @@ resource "aws_rds_cluster_instance" "keycloak_db_instance" {
   engine               = aws_rds_cluster.db_cluster.engine
   engine_version       = aws_rds_cluster.db_cluster.engine_version
   db_subnet_group_name = aws_db_subnet_group.keycloak.name
-  tags = local.default_tags
+  tags                 = local.default_tags
 }

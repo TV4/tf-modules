@@ -249,7 +249,7 @@ resource "aws_ecs_service" "keycloak_ecs_service" {
   network_configuration {
     assign_public_ip = false
     security_groups  = [aws_security_group.keycloak_container_service.id]
-    subnets = var.private_subnets
+    subnets          = var.private_subnets
   }
 
   depends_on = [
@@ -357,7 +357,7 @@ resource "aws_lb" "keycloak_ecs_service" {
   subnets                    = var.public_subnets
   tags                       = local.default_tags
   enable_deletion_protection = false
-  
+
   access_logs {
     bucket  = aws_s3_bucket.keycloak_lb_access_logs.bucket
     enabled = true

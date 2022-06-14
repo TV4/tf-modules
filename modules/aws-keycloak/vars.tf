@@ -31,8 +31,8 @@ variable "database_instance_type" {
 }
 
 variable "database_instance_count" {
-  type        = number
-  default     = 2
+  type    = number
+  default = 2
 }
 
 variable "db_password_secret_arn" {
@@ -52,7 +52,7 @@ variable "tags" {
 }
 
 variable "db_deletion_protection" {
-  type = bool
+  type    = bool
   default = true
 }
 
@@ -61,7 +61,7 @@ variable "access_logs_s3_bucket_name" {
 }
 
 variable "secrets_manager_kms_key_alias" {
-  type = string  
+  type = string
 }
 
 variable "vpc_id" {
