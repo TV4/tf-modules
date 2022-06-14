@@ -29,6 +29,7 @@
 
 | Name | Type |
 |------|------|
+| [aws_eks_identity_provider_config.keycloak](https://registry.terraform.io/providers/hashicorp/aws/3.63.0/docs/resources/eks_identity_provider_config) | resource |
 | [aws_eks_cluster.cluster](https://registry.terraform.io/providers/hashicorp/aws/3.63.0/docs/data-sources/eks_cluster) | data source |
 | [aws_eks_cluster_auth.cluster](https://registry.terraform.io/providers/hashicorp/aws/3.63.0/docs/data-sources/eks_cluster_auth) | data source |
 | [aws_iam_policy_document.cert_manager](https://registry.terraform.io/providers/hashicorp/aws/3.63.0/docs/data-sources/iam_policy_document) | data source |
@@ -42,6 +43,7 @@
 |------|-------------|------|---------|:--------:|
 | <a name="input_accounts"></a> [accounts](#input\_accounts) | Access rights, derived from roles | `list(string)` | `[]` | no |
 | <a name="input_azs"></a> [azs](#input\_azs) | Availability Zones | `list(string)` | n/a | yes |
+| <a name="input_cluster_identity_providers"></a> [cluster\_identity\_providers](#input\_cluster\_identity\_providers) | OIDC connection for external keycloak | `any` | n/a | yes |
 | <a name="input_eks_version"></a> [eks\_version](#input\_eks\_version) | EKS k8s version | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | Cluster identification string | `string` | n/a | yes |
 | <a name="input_node_groups"></a> [node\_groups](#input\_node\_groups) | List of Node worker groups | `any` | n/a | yes |

@@ -6,17 +6,17 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_flux"></a> [flux](#requirement\_flux) | 0.5.1 |
-| <a name="requirement_github"></a> [github](#requirement\_github) | 4.13.0 |
+| <a name="requirement_github"></a> [github](#requirement\_github) | 4.26.1 |
 | <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | ~> 2.4.1 |
-| <a name="requirement_tls"></a> [tls](#requirement\_tls) | 3.1.0 |
+| <a name="requirement_tls"></a> [tls](#requirement\_tls) | 3.4.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_github"></a> [github](#provider\_github) | 4.13.0 |
+| <a name="provider_github"></a> [github](#provider\_github) | 4.26.1 |
 | <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | ~> 2.4.1 |
-| <a name="provider_tls"></a> [tls](#provider\_tls) | 3.1.0 |
+| <a name="provider_tls"></a> [tls](#provider\_tls) | 3.4.0 |
 
 ## Modules
 
@@ -26,10 +26,10 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [github_repository_deploy_key.extras](https://registry.terraform.io/providers/integrations/github/4.13.0/docs/resources/repository_deploy_key) | resource |
+| [github_repository_deploy_key.extras](https://registry.terraform.io/providers/integrations/github/4.26.1/docs/resources/repository_deploy_key) | resource |
 | [kubernetes_secret.extras](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/secret) | resource |
-| [tls_private_key.extras](https://registry.terraform.io/providers/hashicorp/tls/3.1.0/docs/resources/private_key) | resource |
-| [github_repository.extras](https://registry.terraform.io/providers/integrations/github/4.13.0/docs/data-sources/repository) | data source |
+| [tls_private_key.extras](https://registry.terraform.io/providers/hashicorp/tls/3.4.0/docs/resources/private_key) | resource |
+| [github_repository.extras](https://registry.terraform.io/providers/integrations/github/4.26.1/docs/data-sources/repository) | data source |
 
 ## Inputs
 
