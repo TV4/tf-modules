@@ -6,11 +6,11 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_flux"></a> [flux](#requirement\_flux) | 0.5.1 |
-| <a name="requirement_github"></a> [github](#requirement\_github) | 4.13.0 |
-| <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 2.2.0 |
-| <a name="requirement_kubectl"></a> [kubectl](#requirement\_kubectl) | 1.13.0 |
+| <a name="requirement_github"></a> [github](#requirement\_github) | 4.26.1 |
+| <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 2.5.1 |
+| <a name="requirement_kubectl"></a> [kubectl](#requirement\_kubectl) | 1.14.0 |
 | <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | ~> 2.4.1 |
-| <a name="requirement_tls"></a> [tls](#requirement\_tls) | 3.1.0 |
+| <a name="requirement_tls"></a> [tls](#requirement\_tls) | 3.4.0 |
 
 ## Providers
 
