@@ -1,7 +1,11 @@
 
 resource "aws_s3_bucket" "keycloak_lb_access_logs" {
-  bucket = var.access_logs_s3_bucket_name
+  bucket = "keycloak-access-log-${local.kc_id}"
   tags   = local.default_tags
+}
+
+resource "aws_s3_bucket_policy" "allow_access_from_another_account" {
+  bucket = aws_s3_bucket.keycloak_lb_access_logs.id
   policy = data.aws_iam_policy_document.keycloak_lb_access_logs.json
 }
 
@@ -9,8 +13,8 @@ data "aws_iam_policy_document" "keycloak_lb_access_logs" {
   statement {
     actions = ["s3:PutObject"]
     resources = [
-      "arn:aws:s3:::${var.access_logs_s3_bucket_name}/AWSLogs/${data.aws_caller_identity.current.account_id}/*",
-      "arn:aws:s3:::${var.access_logs_s3_bucket_name}"
+      "arn:aws:s3:::${aws_s3_bucket.keycloak_lb_access_logs.id}/AWSLogs/${data.aws_caller_identity.current.account_id}/*",
+      "arn:aws:s3:::${aws_s3_bucket.keycloak_lb_access_logs.id}"
     ]
 
     principals {
@@ -20,7 +24,7 @@ data "aws_iam_policy_document" "keycloak_lb_access_logs" {
   }
   statement {
     actions   = ["s3:PutObject"]
-    resources = ["arn:aws:s3:::${var.access_logs_s3_bucket_name}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
+    resources = ["arn:aws:s3:::${aws_s3_bucket.keycloak_lb_access_logs.id}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
     condition {
       test     = "StringEquals"
       values   = ["bucket-owner-full-control"]
@@ -34,7 +38,7 @@ data "aws_iam_policy_document" "keycloak_lb_access_logs" {
   }
   statement {
     actions   = ["s3:GetBucketAcl"]
-    resources = ["arn:aws:s3:::${var.access_logs_s3_bucket_name}"]
+    resources = ["arn:aws:s3:::${aws_s3_bucket.keycloak_lb_access_logs.id}"]
 
     principals {
       type        = "Service"

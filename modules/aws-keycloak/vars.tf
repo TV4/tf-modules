@@ -19,11 +19,6 @@ variable "auto_scaling_target_cpu_utilization" {
   default = 75
 }
 
-variable "java_opts" {
-  type        = string
-  description = "JAVA_OPTS environment variable"
-}
-
 variable "database_instance_type" {
   type        = string
   description = "Instance type to be used for the core instances"
@@ -48,16 +43,11 @@ variable "keycloak_user" {
 }
 
 variable "tags" {
-  type = object({})
 }
 
 variable "db_deletion_protection" {
   type    = bool
   default = true
-}
-
-variable "access_logs_s3_bucket_name" {
-  type = string
 }
 
 variable "secrets_manager_kms_key_alias" {
@@ -74,4 +64,13 @@ variable "private_subnets" {
 
 variable "public_subnets" {
   type = list(string)
+}
+
+variable "keycloak_url" {
+  type = string
+}
+
+variable "keycloak_verbose_logging" {
+  type = bool
+  default = false
 }
