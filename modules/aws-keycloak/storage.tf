@@ -1,11 +1,11 @@
 resource "aws_db_subnet_group" "keycloak" {
-  name       = "keycloak"
+  name       = "keycloak-${local.kc_id}"
   subnet_ids = var.private_subnets
   tags       = local.default_tags
 }
 
 resource "aws_security_group" "db_cluster" {
-  name   = "Keycloak DB Cluster"
+  name   = "keycloak-${local.kc_id}"
   vpc_id = var.vpc_id
   tags   = local.default_tags
 }
@@ -58,17 +58,17 @@ data "aws_secretsmanager_secret_version" "rds_master_password" {
 }
 
 resource "aws_rds_cluster" "db_cluster" {
-  cluster_identifier_prefix       = "keycloak-db-cluster"
+  cluster_identifier_prefix       = "keycloak-${local.kc_id}-"
   engine                          = "aurora-mysql"
   engine_version                  = "5.7.mysql_aurora.2.09.1"
   backup_retention_period         = 7
   db_cluster_parameter_group_name = "default.aurora-mysql5.7"
   db_subnet_group_name            = aws_db_subnet_group.keycloak.name
-  master_username                 = "admin"
+  master_username                 = local.rds_master_username
   master_password                 = data.aws_secretsmanager_secret_version.rds_master_password.secret_string
   storage_encrypted               = true
   vpc_security_group_ids          = [aws_security_group.db_cluster.id]
-  final_snapshot_identifier       = "keycloak-db-cluster"
+  final_snapshot_identifier       = "keycloak-${local.kc_id}-final-snapshot"
   copy_tags_to_snapshot           = true
   deletion_protection             = var.db_deletion_protection
   tags                            = local.default_tags
