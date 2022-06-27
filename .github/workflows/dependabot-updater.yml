@@ -27,7 +27,7 @@ jobs:
           for FOLDER in modules/*
           do
             # add a new package-ecosystem entry
-            jq --arg modulefolder "$FOLDER" '.updates |= . + [ { "package-ecosystem": "terraform", "directory": $modulefolder, "schedule": { "interval": "daily" } } ]' .github/dependabot.json > .github/dependabot-2.json
+            jq --arg modulefolder "$FOLDER" '.updates |= . + [ { "package-ecosystem": "terraform", "directory": $modulefolder, "schedule": { "interval": "monthly" } } ]' .github/dependabot.json > .github/dependabot-2.json
 
             # replace .github/dependabot.json with updated content
             mv .github/dependabot-2.json .github/dependabot.json
