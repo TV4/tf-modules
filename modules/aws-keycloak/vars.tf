@@ -71,6 +71,6 @@ variable "keycloak_url" {
 }
 
 variable "keycloak_verbose_logging" {
-  type = bool
+  type    = bool
   default = false
 }
