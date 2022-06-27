@@ -1,3 +1,3 @@
 variable "realm_name" {
-  type = string  
+  type = string
 }
