@@ -1,5 +1,5 @@
 resource "aws_ecs_cluster" "keycloak_ecs_cluster" {
-  name = "keycloak_ecs_cluster"
+  name = "keycloak-${local.kc_id}"
   tags = local.default_tags
 }
 
@@ -63,6 +63,39 @@ resource "aws_iam_role_policy" "keycloak_container_service_task_execution_role" 
     ]
   })
 }
+resource "aws_iam_policy" "keycloak_container_service_task_role_efs" {
+  name   = "keycloak_container_service_task_role_efs"
+  path   = "/"
+  policy = data.aws_iam_policy_document.keycloak_container_service_task_role_efs.json
+}
+
+resource "aws_iam_policy_attachment" "attach" {
+  name       = "keycloak_container_service_task_role_efs-attachment"
+  roles      = [aws_iam_role.keycloak_container_service_task_role.name]
+  policy_arn = aws_iam_policy.keycloak_container_service_task_role_efs.arn
+}
+
+resource "aws_efs_mount_target" "efs-mt" {
+  count           = length(var.private_subnets)
+  file_system_id  = aws_efs_file_system.container_certs.id
+  subnet_id       = var.private_subnets[count.index]
+  security_groups = [aws_security_group.efs.id]
+}
+
+data "aws_iam_policy_document" "keycloak_container_service_task_role_efs" {
+  statement {
+    actions = [
+      "elasticfilesystem:ClientWrite",
+      "elasticfilesystem:ClientMount"
+    ]
+    resources = [aws_efs_file_system.container_certs.arn]
+    condition {
+      test     = "StringEquals"
+      values   = ["elasticfilesystem:AccessPointArn"]
+      variable = "elasticfilesystem:AccessPointArn"
+    }
+  }
+}
 
 resource "aws_iam_role" "keycloak_container_service_task_role" {
   tags = local.default_tags
@@ -81,10 +114,44 @@ resource "aws_iam_role" "keycloak_container_service_task_role" {
   })
 }
 
+resource "aws_efs_file_system" "container_certs" {
+  creation_token = "keycloak_container_certs"
+  encrypted      = true
+  tags           = merge(local.default_tags, { "Name" = "Keycloak container certs" })
+}
+
+resource "aws_efs_access_point" "container_certs" {
+  file_system_id = aws_efs_file_system.container_certs.id
+  root_directory { path = "/" }
+  tags = merge(local.default_tags, { "Name" = "Keycloak container certs" })
+}
+
+data "aws_iam_policy_document" "enforce_access_through_efs_access_point" {
+  statement {
+    sid    = "efs-enforce-access-through-efs-access-point"
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    actions   = ["elasticfilesystem:Client*"]
+    resources = [aws_efs_file_system.container_certs.arn]
+    condition {
+      test     = "StringEquals"
+      variable = "elasticfilesystem:AccessPointArn"
+      values   = [aws_efs_access_point.container_certs.arn]
+    }
+  }
+}
+
+resource "aws_efs_file_system_policy" "container_certs" {
+  file_system_id = aws_efs_file_system.container_certs.id
+  policy         = data.aws_iam_policy_document.enforce_access_through_efs_access_point.json
+}
 
 resource "aws_ecs_task_definition" "keycloak_task_definition" {
   tags                     = local.default_tags
-  family                   = "keycloak_task_definition"
+  family                   = "keycloak-${local.kc_id}"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   task_role_arn            = aws_iam_role.keycloak_container_service_task_role.arn
@@ -92,8 +159,46 @@ resource "aws_ecs_task_definition" "keycloak_task_definition" {
   cpu                      = 4096
   memory                   = 30720
 
+  volume {
+    name = "container_certs"
+    efs_volume_configuration {
+      file_system_id          = aws_efs_file_system.container_certs.id
+      transit_encryption      = "ENABLED"
+      transit_encryption_port = 2999
+      authorization_config {
+        access_point_id = aws_efs_access_point.container_certs.id
+        iam             = "ENABLED"
+      }
+    }
+  }
+
   container_definitions = <<DEFINITION
   [{
+		"name": "keycloak-cert",
+		"image": "mirror.gcr.io/library/alpine:3.16.0",
+		"essential": false,
+    "cpu": 68,
+    "memory": 96,
+    "entryPoint": ["sh", "-c"],
+		"command": [
+      "apk update && apk add --no-cache openssl && openssl req -x509 -nodes -days 3650 -subj \"/C=CA/ST=QC/O=Company Inc/CN=${var.keycloak_url}\" -newkey rsa:2048 -keyout /opt/container_certs/selfsigned.key -out /opt/container_certs/selfsigned.crt && chown 1000:0 /opt/container_certs/*"
+    ],
+		"logConfiguration": {
+			"logDriver": "awslogs",
+			"options": {
+				"awslogs-group": "${aws_cloudwatch_log_group.keycloak_ecs_service.name}",
+				"awslogs-region": "${data.aws_region.current.name}",
+				"awslogs-stream-prefix": "keycloak-cert"
+			}
+		},
+    "mountPoints": [
+      {
+        "sourceVolume": "container_certs",
+        "containerPath": "/opt/container_certs"
+      }
+    ]
+	},
+  {
 		"name": "bootstrap",
 		"image": "${local.mysql_bootstrap_image}",
 		"essential": false,
@@ -108,11 +213,11 @@ resource "aws_ecs_task_definition" "keycloak_task_definition" {
     ],
 		"environment": [{
 				"name": "DB_NAME",
-				"value": "keycloak"
+				"value": "${local.rds_database_name}"
 			},
 			{
 				"name": "DB_USER",
-				"value": "admin"
+				"value": "${local.rds_master_username}"
 			},
 			{
 				"name": "DB_ADDR",
@@ -130,60 +235,74 @@ resource "aws_ecs_task_definition" "keycloak_task_definition" {
 	},
 	{
 		"name": "keycloak",
-		"cpu": 3068,
-		"memory": 29696,
+		"cpu": 3000,
+		"memory": 29600,
 		"networkMode": "awsvpc",
 		"requiredCapabilities": "FARGATE",
+    "entrypoint":  ["/opt/keycloak/bin/kc.sh"],
+    "command": ${local.keycloak_command},
 		"image": "${local.keycloak_image}",
 		"essential": true,
 		"dependsOn": [{
 			"condition": "SUCCESS",
 			"containerName": "bootstrap"
+		},
+    {
+			"condition": "SUCCESS",
+			"containerName": "keycloak-cert"
 		}],
     "secrets": [
       {
-        "name": "KEYCLOAK_PASSWORD",
+        "name": "KEYCLOAK_ADMIN_PASSWORD",
         "valueFrom": "${var.keycloak_password_secret_arn}"
       },
       {
-        "name": "DB_PASSWORD",
+        "name": "KC_DB_PASSWORD",
         "valueFrom": "${var.db_password_secret_arn}"
       }
     ],
 		"environment": [{
-				"name": "DB_ADDR",
+				"name": "KC_HTTPS_CERTIFICATE_FILE",
+				"value": "/opt/container_certs/selfsigned.crt"
+			},
+      {
+				"name": "KC_HTTPS_CERTIFICATE_KEY_FILE",
+				"value": "/opt/container_certs/selfsigned.key"
+			},
+      {
+				"name": "KC_DB_URL_HOST",
 				"value": "${aws_rds_cluster.db_cluster.endpoint}"
 			},
 			{
-				"name": "DB_DATABASE",
-				"value": "keycloak"
+				"name": "KC_DB_SCHEMA", 
+				"value": "${local.rds_database_name}"
 			},
 			{
-				"name": "DB_PORT",
+				"name": "KC_DB_URL_DATABASE", 
+				"value": "${local.rds_database_name}"
+			},
+			{
+				"name": "KC_DB_URL_PORT",
 				"value": "3306"
 			},
 			{
-				"name": "DB_USER",
-				"value": "admin"
-			},
+				"name": "KC_HTTPS_PORT",
+				"value": "8443"
+			}, 
 			{
-				"name": "DB_VENDOR",
+				"name": "KC_DB_USERNAME",
+				"value": "${local.rds_master_username}"
+			},  
+			{
+				"name": "KC_DB",
 				"value": "mysql"
 			},
-			{
-				"name": "JDBC_PARAMS",
-				"value": "useSSL=false"
+      {
+				"name": "KC_PROXY",
+				"value": "edge"
 			},
 			{
-				"name": "JGROUPS_DISCOVERY_PROTOCOL",
-				"value": "JDBC_PING"
-			},
-			{
-				"name": "JAVA_OPTS",
-				"value": "${var.java_opts}"
-			},
-			{
-				"name": "KEYCLOAK_USER",
+				"name": "KEYCLOAK_ADMIN",
 				"value": "${var.keycloak_user}"
 			}
 		],
@@ -215,21 +334,27 @@ resource "aws_ecs_task_definition" "keycloak_task_definition" {
 				"containerPort": 54200,
 				"protocol": "udp"
 			}
-		]
+		],
+    "mountPoints": [
+      {
+        "sourceVolume": "container_certs",
+        "containerPath": "/opt/container_certs"
+      }
+    ]
 	}
 ]
   DEFINITION
 }
 
 resource "aws_cloudwatch_log_group" "keycloak_ecs_service" {
-  name              = "keycloak_ecs_service"
+  name              = "keycloak-${local.kc_id}"
   retention_in_days = 30
   tags              = local.default_tags
 }
 
 
 resource "aws_ecs_service" "keycloak_ecs_service" {
-  name                               = "keycloak_ecs_service"
+  name                               = "keycloak-${local.kc_id}"
   cluster                            = aws_ecs_cluster.keycloak_ecs_cluster.id
   task_definition                    = aws_ecs_task_definition.keycloak_task_definition.arn
   deployment_maximum_percent         = 200
@@ -259,10 +384,56 @@ resource "aws_ecs_service" "keycloak_ecs_service" {
   ]
 }
 
+resource "aws_security_group" "efs" {
+  description = "EFS"
+  vpc_id      = var.vpc_id
+  tags        = local.default_tags
+}
+
+resource "aws_security_group_rule" "ingress_nfs" {
+  description              = "NFS/EFS"
+  from_port                = 2049
+  to_port                  = 2049
+  protocol                 = "tcp"
+  type                     = "ingress"
+  security_group_id        = aws_security_group.efs.id
+  source_security_group_id = aws_security_group.keycloak_container_service.id
+}
+
+resource "aws_security_group_rule" "ingress_nfs_transit_encryption" {
+  description              = "NFS/EFS"
+  from_port                = 2999
+  to_port                  = 2999
+  protocol                 = "tcp"
+  type                     = "ingress"
+  security_group_id        = aws_security_group.efs.id
+  source_security_group_id = aws_security_group.keycloak_container_service.id
+}
+
 resource "aws_security_group" "keycloak_container_service" {
   description = "Keycloak ECS Service"
   vpc_id      = var.vpc_id
   tags        = local.default_tags
+}
+
+resource "aws_security_group_rule" "egress_nfs" {
+  description              = "NFS/EFS"
+  from_port                = 2049
+  to_port                  = 2049
+  protocol                 = "tcp"
+  type                     = "egress"
+  security_group_id        = aws_security_group.keycloak_container_service.id
+  source_security_group_id = aws_security_group.efs.id
+}
+
+resource "aws_security_group_rule" "egress_nfs_transit_encryption" {
+  description              = "NFS/EFS"
+  from_port                = 2999
+  to_port                  = 2999
+  protocol                 = "tcp"
+  type                     = "egress"
+  security_group_id        = aws_security_group.keycloak_container_service.id
+  source_security_group_id = aws_security_group.alb_sg.id
 }
 
 resource "aws_security_group_rule" "ingress7600" {
@@ -350,7 +521,7 @@ resource "aws_appautoscaling_policy" "keycloak" {
 }
 
 resource "aws_lb" "keycloak_ecs_service" {
-  name                       = "key-cloak-ecs-service"
+  name                       = "keycloak-${local.kc_id}"
   internal                   = false
   load_balancer_type         = "application"
   security_groups            = [aws_security_group.alb_sg.id]
