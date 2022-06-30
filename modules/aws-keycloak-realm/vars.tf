@@ -1,4 +1,4 @@
 variable "realm_name" {
-  type = string
+  type        = string
   description = "Name of the realm to create"
 }
