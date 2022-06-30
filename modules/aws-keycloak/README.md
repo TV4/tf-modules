@@ -33,7 +33,7 @@ You will need to provide an AWS Certificate Manager certificate Arn to provide H
 
 ## Example
 
-```
+```terraform
 module "keycloak_vpc" {
   source = "terraform-aws-modules/vpc/aws"
   name   = "keycloak-vpc"
