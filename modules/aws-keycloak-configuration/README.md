@@ -15,8 +15,7 @@ This Keycloak setup is split into three parts/modules, each with its own scope.
 
 ## Example
 
-```
-
+```terraform
 module "keycloak" {
   source                              = "github.com/TV4/tf-modules//modules/aws-keycloak"
   tags                                = {"Terraform" = true}
